@@ -103,7 +103,7 @@ void logFunc(Args&&... args)
 
 struct DefaultTask
 {
-    static constexpr std::array<std::string_view, 0> keywords;
+    static constexpr std::array keywords = {"he", "there"};
 };
     
 //int defaultId = task_id<DefaultTask>;

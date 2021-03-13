@@ -48,7 +48,7 @@ constexpr auto parseString(StringHolder holder)
     constexpr std::string_view formatStr = holder();
     FixedString<formatStr.length()> result = {};
     constexpr size_t nVars = countVarNames(formatStr.begin());
-    std::array<std::string_view, nVars> varNames;
+    std::array<std::string_view, nVars> varNames = {};
     
     int argId = 0;
     auto it = formatStr.begin();
@@ -63,11 +63,11 @@ constexpr auto parseString(StringHolder holder)
         }
         if (ch == '{')
         {
-            result.data[dst++] = '{';
-            result.data[dst++] = '0' + argId++;
             if (*it == '}')
                 throw std::runtime_error("must specify var name");
-            
+
+            result.data[dst++] = '{';
+            result.data[dst++] = '0' + argId++;            
             const Char* start = it;
             for (;*it && *it != '}'; ++it)
             {}

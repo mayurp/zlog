@@ -51,11 +51,12 @@ int main2()
 
 struct SomeTask
 {
-    static constexpr std::array<std::string_view, 2> keywords = {"12", "lokok"};
+    static constexpr std::array keywords = {"12", "lokok"};
 };
 
 void test()
 {
+    LOG("abc {length} is {}", 12.f, "jie");
     LOGTASK(SomeTask, "abc {length} is {name}", 12.f, "jie");
     LOGTASK(SomeTask, "efg {something}", true);
 }

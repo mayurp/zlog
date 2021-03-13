@@ -18,5 +18,8 @@ DerivedData/
 *.perspectivev3
 !default.perspectivev3
 
+
+template_fun.xcodeproj/project.xcworkspace/xcshareddata/
+
 #libs
 ctti/
