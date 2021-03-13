@@ -29,6 +29,7 @@
 		777DDEFC25F6F7D8006B5FFF /* somewhere.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = somewhere.cpp; sourceTree = "<group>"; };
 		777DDEFD25F6F7D8006B5FFF /* somewhere.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = somewhere.hpp; sourceTree = "<group>"; };
 		777DDEFF25F9691D006B5FFF /* log.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = log.hpp; sourceTree = "<group>"; };
+		777DDF0025FC1A34006B5FFF /* format.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = format.hpp; sourceTree = "<group>"; };
 		7785085E2427945E00538447 /* Common.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Common.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -67,6 +68,7 @@
 				777DDEFC25F6F7D8006B5FFF /* somewhere.cpp */,
 				777DDEFD25F6F7D8006B5FFF /* somewhere.hpp */,
 				777DDEFF25F9691D006B5FFF /* log.hpp */,
+				777DDF0025FC1A34006B5FFF /* format.hpp */,
 			);
 			path = template_fun;
 			sourceTree = "<group>";

@@ -9,12 +9,18 @@
 #ifndef log_h
 #define log_h
 
+#include "format.hpp"
+
+
 #include <type_traits>
 #include <string_view>
 #include <string>
 #include <iostream>
 #include <sstream>
 #include <map>
+#include <vector>
+
+#include <ctti/type_id.hpp>
 
 namespace log
 {
@@ -26,36 +32,57 @@ struct LogMacroData
     int32_t line;
 };
 
-inline std::map<int, LogMacroData>& getRegistry()
+struct LogMetaData
 {
-    static std::map<int, LogMacroData> registry;
+    LogMacroData macroData;
+    std::vector<std::string_view> fieldNames;
+    std::vector<std::string_view> fieldTypes;
+
+};
+
+inline std::map<int, LogMetaData>& getRegistry()
+{
+    static std::map<int, LogMetaData> registry;
     return registry;
 }
+    
+constexpr std::string_view convert(const ctti::detail::cstring& str)
+{
+    return std::string_view(str.begin(), str.length());
+}
 
-template <typename MetaData>
+template <typename MacroData, typename... Args>
 struct MetaDataNode
 {
     MetaDataNode() : id(log_id++)
     {
-        getRegistry()[id] = macroData;
+        LogMetaData data;
+        data.macroData = macroData;
+        constexpr auto parsedFields = parseString([](){return MacroData{}().format;});
+        static_assert(parsedFields.varNames.size() == sizeof...(Args), "number of args must match format string");
+        for (const auto& v : parsedFields.varNames)
+        {
+            data.fieldNames.push_back(v);
+        }
+        (data.fieldTypes.emplace_back(convert(ctti::nameof<Args>())), ...);
+        getRegistry()[id] = data;
     }
-    
+
     int32_t id;
-    LogMacroData macroData = MetaData{}();
+    LogMacroData macroData = MacroData{}();
 };
 
-template<typename MetaData>
-inline MetaDataNode<MetaData> meta_data_node{};
+template<typename MacroData, typename... Args>
+inline MetaDataNode<MacroData, Args...> meta_data_node{};
 
 
-template <typename MetaData, typename... Args>
-void logFunc(Args... args)
+template <typename MacroData, typename... Args>
+void logFunc(Args&&... args)
 {
-    static const auto m = meta_data_node<MetaData>;
-    std::cout << m.id;
-    //std::cout << m.format << " " << m.file << " " << m.line << ", ";
-    //((std::cout << ctti::nameof<decltype(args)>() << " " << args  << std::endl), ...);
-    std::cout << std::endl;
+    static const auto id = meta_data_node<MacroData, Args...>.id;
+    constexpr auto parsedFields = parseString([](){return MacroData{}().format;});
+    constexpr auto cleanFormat = parsedFields.formatStr;
+    std::cout << id << " " << cleanFormat.view() << "\n";
 }
 
 #define LOGID(format, ...)                                      \
@@ -69,7 +96,8 @@ do                                                              \
             return LogMacroData{format, __FILE__, __LINE__};    \
         }                                                       \
     } anonymous_meta_data;                                      \
-    logFunc<decltype(anonymous_meta_data)>(__VA_ARGS__);   \
+                                                                \
+    logFunc<decltype(anonymous_meta_data)>(__VA_ARGS__);        \
 } while(false)                                                  \
 
 }
