@@ -12,8 +12,6 @@
 
 
 
-#define LOG(STR, ...)
-
 template <typename StringHolder, typename... Args>
 auto logTest(StringHolder holder, Args&&... args)
 {
@@ -27,8 +25,6 @@ auto logTest(StringHolder holder, Args&&... args)
     ((os << ctti::nameof<decltype(args)>() << " " << args  << std::endl), ...);
     return os.str();
 }
-
-//#define LOGID(X) type_id<X>
 
 int main2()
 {
@@ -53,28 +49,35 @@ int main2()
     return 0;
 }
 
+struct SomeTask
+{
+    static constexpr std::array<std::string_view, 2> keywords = {"12", "lokok"};
+};
 
 void test()
 {
-    LOGID("abc {length} is {name}", 12.f, "jie");
-    LOGID("efg {something}", true);
+    LOGTASK(SomeTask, "abc {length} is {name}", 12.f, "jie");
+    LOGTASK(SomeTask, "efg {something}", true);
 }
 
 int main()
 {
 
     std::cout << "Registry\n";
-    for (const auto& [id, metaData] : log::getRegistry())
+    for (const auto& metaData : log::getRegistry())
     {
         const log::LogMacroData& macroData = metaData.macroData;
         std::cout << "-------------------------\n";
-        std::cout << "id: " << id << "\nfile: " << macroData.file << "\nline: " << macroData.line << "\n";
+        std::cout << "taskId: " << metaData.taskId << "\ntaskName: " << metaData.taskName << "\n";
+        std::cout << "logId: " << metaData.logId << "\nfile: " << macroData.file << "\nline: " << macroData.line << "\n";
         std::cout << "formatStr: " << macroData.format << "\n";
         for (int i = 0; i < metaData.fieldNames.size(); ++i)
-        {
             std::cout << metaData.fieldNames[i] << " : " << metaData.fieldTypes[i] << "\n";
-        }
-        std::cout << "-------------------------\n";
+        
+        std::cout << "keywords: ";
+        for (const auto& k : metaData.keywords)
+            std::cout << k << ", ";
+        std::cout << "\n-------------------------\n";
 
     }
     std::cout << "\n";

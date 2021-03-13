@@ -23,5 +23,3 @@ typename std::tuple_element<N, std::tuple<Ts...>>::type;
 inline int type_id_seq = 0;
 template< typename T > inline const int type_id = type_id_seq++;
 
-
-inline int log_id = 0;

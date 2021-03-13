@@ -18,8 +18,8 @@
 
 void test2()
 {
-    LOGID("abc");
-    LOGID("efg");
+    LOG("abc");
+    LOG("efg");
 }
 
 
