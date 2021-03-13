@@ -56,7 +56,7 @@ struct SomeTask
 
 void test()
 {
-    LOG("abc {length} is {}", 12.f, "jie");
+    LOG("abc {length} is {name}", 12.f, "jie");
     LOGTASK(SomeTask, "abc {length} is {name}", 12.f, "jie");
     LOGTASK(SomeTask, "efg {something}", true);
 }
