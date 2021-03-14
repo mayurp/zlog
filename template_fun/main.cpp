@@ -8,6 +8,7 @@
 #include <ctti/type_id.hpp>
 #include "Common.hpp"
 #include "log.hpp"
+#include "etw.hpp"
 #include "somewhere.hpp"
 
 
@@ -86,6 +87,8 @@ int main()
     std::cout << "Logging\n";
 
     test();
+    
+    testEtw();
 
     return 0;
 }
