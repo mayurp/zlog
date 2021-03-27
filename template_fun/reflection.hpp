@@ -46,7 +46,8 @@ struct reflect_members
 template <typename T, typename F, std::size_t... Idx>
 constexpr void for_each(T&& t, F&& f, std::index_sequence<Idx...>)
 {
-    using ST = std::remove_reference_t<std::remove_cv_t<T>>;
+    // TODO is this needed?
+    using ST = std::remove_cv_t<std::remove_reference_t<T>>;
     using R = reflect_members<ST>;
     (f(R::names[Idx], R:: template get<Idx>(t)), ...);
 }
@@ -54,10 +55,21 @@ constexpr void for_each(T&& t, F&& f, std::index_sequence<Idx...>)
 template<typename T, typename F>
 constexpr void for_each(T&& t, F&& f)
 {
-    using ST = std::remove_reference_t<std::remove_cv_t<T>>;
+    // TODO is this needed?
+    using ST = std::remove_cv_t<std::remove_reference_t<T>>;
     using R = reflect_members<ST>;
     for_each(std::forward<T>(t), std::forward<F>(f), std::make_index_sequence<R::N>{});
 }
+
+//template<typename T>
+//constexpr bool is_reflected_v = reflect_members<T>::is_reflected;
+
+template <typename T, typename = void>
+constexpr bool is_reflected_v = false;
+
+template <typename T>
+constexpr bool is_reflected_v
+    <T, std::void_t<decltype(reflection::reflect_members<T>::is_reflected)>> = true;
 
 } // namespace reflection
 
@@ -69,6 +81,7 @@ namespace reflection {\
 template<>\
 struct reflect_members<STRUCT_NAME>\
 {\
+    static constexpr bool is_reflected = true;\
     static constexpr std::string_view name = #STRUCT_NAME; \
     static constexpr std::array names = {MAP_LIST(STRING, __VA_ARGS__)}; \
     static constexpr size_t N = names.size(); \

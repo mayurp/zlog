@@ -9,6 +9,7 @@
 #include <string_view>
 #include <string>
 #include <iostream>
+#include <ostream>
 #include <sstream>
 
 #include <ctti/type_id.hpp>
@@ -26,15 +27,6 @@ struct X
 };
 
 REFLECT(X, a, b);
-
-//template<typename T, typename std::enable_if_t<reflection::has_reflection_v<T>>>
-//std::ostream& operator<<(std::ostream& os, const T& t)
-//{
-//    reflection::for_each(t, [&](std::string_view name, const auto& v)
-//    {
-//        os << name << ": " << v << "\n";
-//    });
-//}
 
 
 class Config {
@@ -71,6 +63,19 @@ void test()
 
 REFLECT(Config, name, id, x, calc);
 
+
+template<typename T, typename = std::enable_if_t<reflection::is_reflected_v<T>>>
+std::ostream& operator<<(std::ostream& os, const T& t)
+{
+    os << "{\n";
+    reflection::for_each(t, [&](std::string_view name, const auto& v)
+    {
+        os << name << ": " << v << "\n";
+    });
+    os << "}";
+    return os;
+}
+
 void testMacro()
 {
     Config config("abc", 22, true);
@@ -84,10 +89,9 @@ void testMacro()
 
     std::cout << "before for_each\n";
 
-    //static_assert(reflection::has_reflection_v<std::string>, "oh edear");
-    //static_assert(is_specialized<reflection::reflect_members<X>>::value, "oh edear");
+    static_assert(reflection::is_reflected_v<Config>, "oh edear");
 
-    //std::cout << config << "\n";
+    std::cout << config << "\n";
 }
 
 int main()
