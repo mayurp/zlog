@@ -30,7 +30,8 @@
 		777DDEFD25F6F7D8006B5FFF /* somewhere.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = somewhere.hpp; sourceTree = "<group>"; };
 		777DDEFF25F9691D006B5FFF /* log.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = log.hpp; sourceTree = "<group>"; };
 		777DDF0025FC1A34006B5FFF /* format.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = format.hpp; sourceTree = "<group>"; };
-		7785085E2427945E00538447 /* Common.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Common.hpp; sourceTree = "<group>"; };
+		77CFE431260EB00A008C39BE /* map_macro.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = map_macro.hpp; sourceTree = "<group>"; };
+		77CFE433260F442C008C39BE /* reflection.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = reflection.hpp; sourceTree = "<group>"; };
 		77D4D9D025FED8440022D153 /* etw.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = etw.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -64,13 +65,14 @@
 		771F0B782422D7FD00AFD02B /* template_fun */ = {
 			isa = PBXGroup;
 			children = (
-				7785085E2427945E00538447 /* Common.hpp */,
 				771F0B792422D7FD00AFD02B /* main.cpp */,
 				777DDEFC25F6F7D8006B5FFF /* somewhere.cpp */,
 				777DDEFD25F6F7D8006B5FFF /* somewhere.hpp */,
 				777DDEFF25F9691D006B5FFF /* log.hpp */,
 				777DDF0025FC1A34006B5FFF /* format.hpp */,
 				77D4D9D025FED8440022D153 /* etw.hpp */,
+				77CFE431260EB00A008C39BE /* map_macro.hpp */,
+				77CFE433260F442C008C39BE /* reflection.hpp */,
 			);
 			path = template_fun;
 			sourceTree = "<group>";
@@ -192,6 +194,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = iguana;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -244,6 +247,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = iguana;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = macosx;

@@ -1,3 +1,9 @@
+#include "somewhere.hpp"
+
+#include "log.hpp"
+#include "etw.hpp"
+#include "reflection.hpp"
+
 #include <array>
 #include <type_traits>
 #include <string_view>
@@ -6,49 +12,50 @@
 #include <sstream>
 
 #include <ctti/type_id.hpp>
-#include "Common.hpp"
-#include "log.hpp"
-#include "etw.hpp"
-#include "somewhere.hpp"
 
-
-
-template <typename StringHolder, typename... Args>
-auto logTest(StringHolder holder, Args&&... args)
+struct X
 {
-    auto result = parseString(holder);
-    std::ostringstream os;
-    os << result.formatStr.view() << std::endl;
-    for (auto s : result.varNames)
-        os << s << ", ";
+    X() { std::cout << "construct\n";}
+    X(const X&) { std::cout << "copy construct\n";}
+    X(X&&) { std::cout << "move construct\n";}
+    X& operator=(const X&) { std::cout << "copy assign\n"; return *this;}
+    X& operator=(X&&) { std::cout << "move assign\n"; return *this;}
     
-    os << std::endl;
-    ((os << ctti::nameof<decltype(args)>() << " " << args  << std::endl), ...);
-    return os.str();
-}
+    int a;
+    bool b;
+};
 
-int main2()
-{
-    std::string w = "the end";
-    int x = 1;
-    float y = 2.3;
-    bool z = true;
+REFLECT(X, a, b);
 
+//template<typename T, typename std::enable_if_t<reflection::has_reflection_v<T>>>
+//std::ostream& operator<<(std::ostream& os, const T& t)
+//{
+//    reflection::for_each(t, [&](std::string_view name, const auto& v)
+//    {
+//        os << name << ": " << v << "\n";
+//    });
+//}
+
+
+class Config {
+public:
+    std::string_view name;
+    int id;
+    bool data;
+    X x;
     
-    auto result = logTest(FORMAT("{one}, {two} {three} -- {four}"), w, x, y, z);
-    std::cout << result;
-    /*
-    constexpr auto result = log("{a}, {j} {bc} -- {dd}", w, x, y, z);
-    //constexpr auto expr2 = parseString(expr1.view().begin());
-    std::cout << result.formatStr.view() << std::endl; // ((y) + (z))
-    for (auto s : result.varNames)
+    const X& calc() const
     {
-        std::cout << s << ", ";
+        return x;
     }
-     */
+
+public:
+   Config(const std::string_view& _name, int _id, bool _data)
+    :name(_name), id(_id), data(_data){}
     
-    return 0;
-}
+    // TODO how do we get rid of this?
+    template <std::size_t I> friend decltype(auto) get(const Config&);
+};
 
 struct SomeTask
 {
@@ -60,6 +67,27 @@ void test()
     LOG("abc {length} is {name}", 12.f, "jie");
     LOGTASK(SomeTask, "abc {length} is {name}", 12.f, "jie");
     LOGTASK(SomeTask, "efg {something}", true);
+}
+
+REFLECT(Config, name, id, x, calc);
+
+void testMacro()
+{
+    Config config("abc", 22, true);
+
+    std::cout << "before get\n";
+    using ZZ = reflection::reflect_members<std::string>;
+    
+    using R = reflection::reflect_members<Config>;
+    const X& x = R::get<2>(config);
+    printf("\ncall ref member function: %d\n", x.a);
+
+    std::cout << "before for_each\n";
+
+    //static_assert(reflection::has_reflection_v<std::string>, "oh edear");
+    //static_assert(is_specialized<reflection::reflect_members<X>>::value, "oh edear");
+
+    //std::cout << config << "\n";
 }
 
 int main()
@@ -85,10 +113,10 @@ int main()
     std::cout << "\n";
     
     std::cout << "Logging\n";
-
-    test();
     
     testEtw();
+
+    testMacro();
 
     return 0;
 }
