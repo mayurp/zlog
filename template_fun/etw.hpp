@@ -9,6 +9,9 @@
 #ifndef etw_h
 #define etw_h
 
+#include <iostream>
+
+
 struct Event
 {
     void* data = nullptr;

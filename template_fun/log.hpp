@@ -11,13 +11,9 @@
 
 #include "format.hpp"
 
-
+#include <iostream>
 #include <type_traits>
 #include <string_view>
-#include <string>
-#include <iostream>
-#include <sstream>
-#include <map>
 #include <vector>
 
 #include <ctti/type_id.hpp>

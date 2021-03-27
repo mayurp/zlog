@@ -9,6 +9,10 @@
 #ifndef format_h
 #define format_h
 
+
+#include <string_view>
+
+
 template <size_t N>
 struct FixedString
 {
