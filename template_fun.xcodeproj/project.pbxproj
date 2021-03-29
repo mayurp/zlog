@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		771F0B7A2422D7FD00AFD02B /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 771F0B792422D7FD00AFD02B /* main.cpp */; };
 		777DDEFE25F6F7D8006B5FFF /* somewhere.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 777DDEFC25F6F7D8006B5FFF /* somewhere.cpp */; };
+		77CFE436260FBAF9008C39BE /* tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 77CFE435260FBAF9008C39BE /* tests.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -32,6 +33,7 @@
 		777DDF0025FC1A34006B5FFF /* format.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = format.hpp; sourceTree = "<group>"; };
 		77CFE431260EB00A008C39BE /* map_macro.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = map_macro.hpp; sourceTree = "<group>"; };
 		77CFE433260F442C008C39BE /* reflection.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = reflection.hpp; sourceTree = "<group>"; };
+		77CFE435260FBAF9008C39BE /* tests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = tests.cpp; sourceTree = "<group>"; };
 		77D4D9D025FED8440022D153 /* etw.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = etw.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -73,6 +75,7 @@
 				77D4D9D025FED8440022D153 /* etw.hpp */,
 				77CFE431260EB00A008C39BE /* map_macro.hpp */,
 				77CFE433260F442C008C39BE /* reflection.hpp */,
+				77CFE435260FBAF9008C39BE /* tests.cpp */,
 			);
 			path = template_fun;
 			sourceTree = "<group>";
@@ -137,6 +140,7 @@
 			files = (
 				771F0B7A2422D7FD00AFD02B /* main.cpp in Sources */,
 				777DDEFE25F6F7D8006B5FFF /* somewhere.cpp in Sources */,
+				77CFE436260FBAF9008C39BE /* tests.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -149,8 +153,8 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
-				CLANG_CXX_LIBRARY = "compiler-default";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
@@ -194,7 +198,11 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = iguana;
+				HEADER_SEARCH_PATHS = (
+					thirdparty,
+					thirdparty/ctti/include,
+					thirdparty/ctti/include/ctti,
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -208,8 +216,8 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
-				CLANG_CXX_LIBRARY = "compiler-default";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
@@ -247,40 +255,33 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = iguana;
+				HEADER_SEARCH_PATHS = (
+					thirdparty,
+					thirdparty/ctti/include,
+					thirdparty/ctti/include/ctti,
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = macosx;
 			};
 			name = Release;
 		};
-		771F0B7E2422D7FD00AFD02B /* Debug */ = {
+		77CFE442260FBFBE008C39BE /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
-				CLANG_CXX_LIBRARY = "libc++";
-				CODE_SIGN_IDENTITY = "-";
-				CODE_SIGN_STYLE = Automatic;
-				HEADER_SEARCH_PATHS = (
-					ctti/include,
-					ctti/include/ctti,
-				);
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PRODUCT_NAME = template_fun;
 			};
 			name = Debug;
 		};
-		771F0B7F2422D7FD00AFD02B /* Release */ = {
+		77CFE443260FBFBE008C39BE /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
-				CLANG_CXX_LIBRARY = "libc++";
-				CODE_SIGN_IDENTITY = "-";
-				CODE_SIGN_STYLE = Automatic;
-				HEADER_SEARCH_PATHS = (
-					ctti/include,
-					ctti/include/ctti,
-				);
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				PRODUCT_NAME = template_fun;
 			};
 			name = Release;
 		};
@@ -299,8 +300,8 @@
 		771F0B7D2422D7FD00AFD02B /* Build configuration list for PBXNativeTarget "template_fun" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				771F0B7E2422D7FD00AFD02B /* Debug */,
-				771F0B7F2422D7FD00AFD02B /* Release */,
+				77CFE442260FBFBE008C39BE /* Debug */,
+				77CFE443260FBFBE008C39BE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

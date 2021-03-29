@@ -22,5 +22,4 @@ DerivedData/
 template_fun.xcodeproj/project.xcworkspace/xcshareddata/
 
 #libs
-ctti/
-iguana/
+thirdparty/

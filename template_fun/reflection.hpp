@@ -61,9 +61,6 @@ constexpr void for_each(T&& t, F&& f)
     for_each(std::forward<T>(t), std::forward<F>(f), std::make_index_sequence<R::N>{});
 }
 
-//template<typename T>
-//constexpr bool is_reflected_v = reflect_members<T>::is_reflected;
-
 template <typename T, typename = void>
 constexpr bool is_reflected_v = false;
 
