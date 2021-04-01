@@ -16,7 +16,8 @@
 #include <string_view>
 #include <vector>
 
-#include <ctti/type_id.hpp>
+#include "ctti_helpers.hpp"
+
 
 namespace log
 {
@@ -50,11 +51,6 @@ inline std::vector<LogMetaData>& getRegistry()
     static std::vector<LogMetaData> registry;
     return registry;
 }
-    
-constexpr std::string_view convert(const ctti::detail::cstring& str)
-{
-    return std::string_view(str.begin(), str.length());
-}
 
 template <typename Task, typename MacroData, typename... Args>
 struct MetaDataNode
@@ -64,7 +60,7 @@ struct MetaDataNode
         LogMetaData data;
         data.logId = id;
         data.taskId = task_id<Task>;
-        data.taskName = convert(ctti::nameof<Task>());
+        data.taskName = cstring2view(ctti::nameof<Task>());
         data.macroData = macroData;
         constexpr auto parsedFields = parseString([](){return MacroData{}().format;});
         static_assert(parsedFields.varNames.size() == sizeof...(Args), "number of args must match format string");
@@ -72,7 +68,7 @@ struct MetaDataNode
         for (const auto& v : parsedFields.varNames)
             data.fieldNames.emplace_back(v);
         
-        (data.fieldTypes.emplace_back(convert(ctti::nameof<Args>())), ...);
+        (data.fieldTypes.emplace_back(cstring2view(ctti::nameof<Args>())), ...);
         
         for (const auto& k : Task::keywords)
             data.keywords.emplace_back(k);

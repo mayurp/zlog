@@ -34,6 +34,7 @@
 		77CFE431260EB00A008C39BE /* map_macro.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = map_macro.hpp; sourceTree = "<group>"; };
 		77CFE433260F442C008C39BE /* reflection.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = reflection.hpp; sourceTree = "<group>"; };
 		77CFE435260FBAF9008C39BE /* tests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = tests.cpp; sourceTree = "<group>"; };
+		77CFE44726164221008C39BE /* ctti_helpers.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ctti_helpers.hpp; sourceTree = "<group>"; };
 		77D4D9D025FED8440022D153 /* etw.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = etw.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -76,6 +77,7 @@
 				77CFE431260EB00A008C39BE /* map_macro.hpp */,
 				77CFE433260F442C008C39BE /* reflection.hpp */,
 				77CFE435260FBAF9008C39BE /* tests.cpp */,
+				77CFE44726164221008C39BE /* ctti_helpers.hpp */,
 			);
 			path = template_fun;
 			sourceTree = "<group>";

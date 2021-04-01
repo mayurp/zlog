@@ -10,6 +10,8 @@
 #define reflection_h
 
 #include "map_macro.hpp"
+#include "ctti_helpers.hpp"
+
 
 namespace reflection
 {
