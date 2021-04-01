@@ -29,6 +29,9 @@ struct nth_value<0, v1, vs...>
     static constexpr auto value = v1;
 };
 
+template<typename T>
+using remove_cvref_t = std::remove_cv_t<std::remove_reference_t<T>>;
+
 template <size_t I, typename T, auto... members>
 constexpr decltype(auto) getImpl(const T& t)
 {
@@ -49,8 +52,7 @@ template <typename T, typename F, std::size_t... Idx>
 constexpr void for_each(T&& t, F&& f, std::index_sequence<Idx...>)
 {
     // TODO is this needed?
-    using ST = std::remove_cv_t<std::remove_reference_t<T>>;
-    using R = reflect_members<ST>;
+    using R = reflect_members<remove_cvref_t<T>>;
     (f(R::names[Idx], R:: template get<Idx>(t)), ...);
 }
 
@@ -58,10 +60,26 @@ template<typename T, typename F>
 constexpr void for_each(T&& t, F&& f)
 {
     // TODO is this needed?
-    using ST = std::remove_cv_t<std::remove_reference_t<T>>;
-    using R = reflect_members<ST>;
+    using R = reflect_members<remove_cvref_t<T>>;
     for_each(std::forward<T>(t), std::forward<F>(f), std::make_index_sequence<R::N>{});
 }
+
+template <typename T, typename F, std::size_t... Idx>
+constexpr void for_each(F&& f, std::index_sequence<Idx...>)
+{
+    // TODO is this needed?
+    using R = reflect_members<remove_cvref_t<T>>;
+    (f(R::names[Idx], decltype(R::template get<Idx>(std::declval<T>())){}), ...);
+}
+
+template<typename T, typename F>
+constexpr void for_each(F&& f)
+{
+    // TODO is this needed?
+    using R = reflect_members<remove_cvref_t<T>>;
+    for_each<T>(std::forward<F>(f), std::make_index_sequence<R::N>{});
+}
+
 
 template <typename T, typename = void>
 constexpr bool is_reflected_v = false;
