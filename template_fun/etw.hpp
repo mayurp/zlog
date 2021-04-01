@@ -29,27 +29,6 @@ public:
     char buf[256];
 };
 
-
-template <typename Arg>
-void pushArg(Event& event, Arg&& arg)
-{
-    event.data = (void*) &arg;
-    event.size = sizeof(arg);
-}
-
-template <typename... Args>
-void logEtwImpl(Args&&... args)
-{
-    constexpr int N = sizeof...(Args);
-    Event events[N];
-    int i = 0;
-    (pushArg(events[i++], std::forward<Args>(args)), ...);
-    for (const Event& e : events)
-    {
-        std::cout << "Event data: " << e.data << ", size: " << e.size << std::endl;
-    }
-}
-
 template<typename T>
 decltype(auto) convertT(T&& value)
 {
@@ -57,7 +36,13 @@ decltype(auto) convertT(T&& value)
         std::remove_reference_t<decltype(value)>
     >;
     if constexpr (std::is_enum_v<UT>)
+    {
+        static_assert(sizeof(UT) <= 4, "enum larger than 4 bytes not supported by ETW");
+        // TODO: Enums are signed by default, does ETW really not support them?
+        // Casting to unsgined int might be fine
+        static_assert(std::is_unsigned_v<std::underlying_type_t<UT>>, "signed enums not supported by ETW");
         return static_cast<uint32_t>(value);
+    }
     else if constexpr (std::is_same_v<UT, bool>)
         return static_cast<uint32_t>(value);
     else if constexpr (std::is_same_v<UT, ReflectionType>)
@@ -66,11 +51,29 @@ decltype(auto) convertT(T&& value)
         return std::forward<decltype(value)>(value);
 };
 
+template <typename Arg>
+void pushArg(Event& event, Arg&& arg)
+{
+    event.data = (void*) &arg;
+    event.size = sizeof(arg);
+}
+
+template <typename Args, size_t... Is>
+void logEtwImpl(Args&& args, std::index_sequence<Is...>)
+{
+    Event events[sizeof... (Is)];
+    (pushArg(events[Is], std::get<Is>(args)), ...);
+    for (const Event& e : events)
+    {
+        std::cout << "Event data: " << e.data << ", size: " << e.size << std::endl;
+    }
+}
+
 template <typename... Args>
 void logEtw(Args&&... args)
 {
-    auto tuple = std::forward_as_tuple(convertT(std::forward<Args>(args))... );
-    std::apply([](auto &&... args) { logEtwImpl(args...); }, tuple);
+    const auto argsTuple = std::forward_as_tuple(convertT(std::forward<Args>(args))... );
+    logEtwImpl(argsTuple, std::index_sequence_for<Args...>{});
 }
 
 int someCalc()
@@ -80,7 +83,7 @@ int someCalc()
 
 void testEtw()
 {
-    enum Teanum : uint8_t
+    enum class Teanum : uint32_t
     {
         one,
         two,
@@ -95,12 +98,13 @@ void testEtw()
         X& operator=(const X&) { std::cout << "copy assign\n"; return *this;}
         X& operator=(X&&) { std::cout << "move assign\n"; return *this;}
     };
-    Teanum t = three;
+    Teanum t = Teanum::three;
     ReflectionType f;
     X x;
     std::vector<X> v = {X()};
-    std::cout << "Start log\n";
+    std::cout << "Start etw log\n";
     logEtw(23, true, "hello", someCalc(), t, x, v, f);
+    std::cout << "Stop etw log\n";
 }
 
 #endif /* etw_h */
