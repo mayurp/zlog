@@ -59,11 +59,15 @@ struct SomeTask
     static constexpr std::array keywords = {"12", "lokok"};
 };
 
-void test()
+void testLogs()
 {
+    std::cout << "\n------- testLogs --------\n";
+
     LOG("abc {length} is {name}", 12.f, "jie");
     LOGTASK(SomeTask, "abc {length} is {name}", 12.f, "jie");
     LOGTASK(SomeTask, "efg {something}", true);
+    
+    std::cout << "\n------- end testLogs --------\n";
 }
 
 REFLECT(Config, name, id, x, calc);
@@ -83,6 +87,8 @@ std::ostream& operator<<(std::ostream& os, const T& t)
 
 void testReflection()
 {
+    std::cout << "\n------- testReflection --------\n";
+
     Config config("abc", 22, true);
 
     std::cout << "before get\n";
@@ -97,13 +103,13 @@ void testReflection()
     static_assert(reflection::is_reflected_v<Config>, "oh edear");
 
     std::cout << config << "\n";
+    
+    std::cout << "\n------- end testReflection --------\n";
+
 }
 
 void testTypeRegistry()
 {
-    //registerType<Vec3>();
-    //registerType<std::string>();
-    
     std::cout << "\n------- testTypeRegistry --------\n";
     for (const auto& type: reflection::getTypeRegistry())
     {
@@ -114,6 +120,8 @@ void testTypeRegistry()
         }
         std::cout << "}\n\n";
     }
+    std::cout << "\n------- end testTypeRegistry --------\n";
+
 }
 
 
@@ -141,6 +149,8 @@ int main()
     std::cout << "\n";
     
     std::cout << "Logging\n";
+    
+    testLogs();
     
     testEtw();
 
