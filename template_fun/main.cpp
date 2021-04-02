@@ -65,17 +65,6 @@ struct SomeTask
     static constexpr std::array keywords = {"12", "lokok"};
 };
 
-void testLogs()
-{
-    std::cout << "\n------- testLogs --------\n";
-
-    LOG("abc {length} is {name}", 12.f, "jie");
-    LOGTASK(SomeTask, "abc {length} is {name}", 12.f, "jie");
-    LOGTASK(SomeTask, "efg {something}", true);
-    
-    std::cout << "\n------- end testLogs --------\n";
-}
-
 template<typename T, typename = std::enable_if_t<reflection::is_reflected_v<T>>>
 std::ostream& operator<<(std::ostream& os, const T& t)
 {
@@ -130,21 +119,19 @@ void testTypeRegistry()
 void testFormat()
 {
     X x;
-    std::vector<X> ints = {X(), X() , X()};
+    std::vector<X> xs = {X(), X() , X()};
     Config config("abc", 22, true);
 
     std::cout << "---\n";
     std::cout << fmt::format(
         FMT_STRING("Some Vec3: {}\n some X: {}\n some vector: {}\n some Config: {}\n"),
-        Vec3{3, 4, 5}, x, ints, config);
+        Vec3{3, 4, 5}, x, xs, config);
     std::cout << "---\n";
 }
 
-int main()
+void testLogRegistry()
 {
-    LOG("position: {pos}", Vec3{1, 2, 3});
-
-    std::cout << "Registry\n";
+    std::cout << "Log Registry\n";
     for (const auto& metaData : logging::getRegistry())
     {
         const logging::LogMacroData& macroData = metaData.macroData;
@@ -162,18 +149,38 @@ int main()
 
     }
     std::cout << "\n";
-    
-    std::cout << "Logging\n";
-    
+}
+
+void testLogs()
+{
+    std::cout << "\n------- testLogs --------\n";
+
+    X x;
+    std::vector<X> xs = {X(), X() , X()};
+    Config config("abc", 22, true);
+
+    std::cout << "\n------- log calls start --------\n";
+
+    LOG("First line: {name} is {length}cm long", "jie", 12.f);
+    LOGTASK(SomeTask, "x: {x} is {config}", x, config);
+    LOGTASK(SomeTask, "v: {position}", Vec3{2, 10, -1});
+
+    std::cout << "\n------- log calls end --------\n";
+    std::cout << "\n------- testLogs --------\n";
+}
+
+int main()
+{
+//    testLogRegistry();
+//    testEtw();
+//
+//    testReflection();
+//
+//    testTypeRegistry();
+//
+//    testFormat();
+
     testLogs();
-    
-    testEtw();
-
-    testReflection();
-
-    testTypeRegistry();
-    
-    testFormat();
 
     return 0;
 }

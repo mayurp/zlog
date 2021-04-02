@@ -17,6 +17,7 @@
 #include <vector>
 
 #include "ctti_helpers.hpp"
+#include "fmt_helpers.hpp"
 
 
 namespace logging
@@ -87,10 +88,10 @@ inline MetaDataNode<Task, MacroData, Args...> meta_data_node{};
 template <typename Task, typename MacroData, typename... Args>
 void logFunc(Args&&... args)
 {
-    static const auto id = meta_data_node<Task, MacroData, Args...>.id;
-    constexpr auto parsedFields = parseString([](){return MacroData{}().format;});
-    constexpr auto cleanFormat = parsedFields.formatStr;
-    std::cout << id << " " << cleanFormat.view() << "\n";
+    //static const auto id = meta_data_node<Task, MacroData, Args...>.id;
+    static constexpr auto parsedFields = parseString([](){return MacroData{}().format;});
+    static constexpr auto cleanFormat = parsedFields.formatStr;
+    std::cout << fmt::format(FMT_STRING(cleanFormat.view()), std::forward<Args>(args)...) << std::endl;
 }
 
 struct DefaultTask

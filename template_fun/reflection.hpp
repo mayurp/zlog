@@ -100,7 +100,7 @@ struct Type
     std::vector<Field> fields;
 };
 
-static std::vector<Type>& getTypeRegistry()
+static inline std::vector<Type>& getTypeRegistry()
 {
     static std::vector<Type> registry;
     return registry;
