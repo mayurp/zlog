@@ -19,7 +19,7 @@
 #include "ctti_helpers.hpp"
 
 
-namespace log
+namespace logging
 {
 
 inline int log_id = 0;
@@ -103,7 +103,7 @@ struct DefaultTask
 #define LOGTASK(Task, format, ...)                              \
 do                                                              \
 {                                                               \
-    using namespace log;                                        \
+    using namespace logging;                                    \
     struct                                                      \
     {                                                           \
         constexpr LogMacroData operator()() const noexcept      \
@@ -115,7 +115,8 @@ do                                                              \
     logFunc<Task, decltype(anonymous_meta_data)>(__VA_ARGS__);  \
 } while(false)                                                  \
 
-#define LOG(format, ...)  LOGTASK(log::DefaultTask, format, __VA_ARGS__)
+#define LOG(format, ...)  LOGTASK(logging::DefaultTask, format, __VA_ARGS__)
 
-}
+} // namespace logging
+
 #endif /* log_h */

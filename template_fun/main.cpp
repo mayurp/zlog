@@ -13,12 +13,16 @@
 #include <sstream>
 
 #include <ctti/type_id.hpp>
+#define FMT_ENFORCE_COMPILE_STRING
+#include <fmt/format.h>
+#include "fmt_helpers.hpp"
+
 
 struct Vec3
 {
     float x, y, z;
 };
-REFLECT(Vec3, x, y, z);
+REFLECT_WITH_FORMATTER(Vec3, x, y, z)
 
 struct X
 {
@@ -28,10 +32,10 @@ struct X
     X& operator=(const X&) { std::cout << "copy assign\n"; return *this;}
     X& operator=(X&&) { std::cout << "move assign\n"; return *this;}
     
-    int a;
-    bool b;
+    int a = 0;
+    bool b = true;
 };
-REFLECT(X, a, b);
+REFLECT_WITH_FORMATTER(X, a, b)
 
 
 class Config {
@@ -53,6 +57,8 @@ public:
     // TODO how do we get rid of this?
     template <std::size_t I> friend decltype(auto) get(const Config&);
 };
+REFLECT_WITH_FORMATTER(Config, name, id, x, calc)
+
 
 struct SomeTask
 {
@@ -69,9 +75,6 @@ void testLogs()
     
     std::cout << "\n------- end testLogs --------\n";
 }
-
-REFLECT(Config, name, id, x, calc);
-
 
 template<typename T, typename = std::enable_if_t<reflection::is_reflected_v<T>>>
 std::ostream& operator<<(std::ostream& os, const T& t)
@@ -124,15 +127,27 @@ void testTypeRegistry()
 
 }
 
+void testFormat()
+{
+    X x;
+    std::vector<X> ints = {X(), X() , X()};
+    Config config("abc", 22, true);
+
+    std::cout << "---\n";
+    std::cout << fmt::format(
+        FMT_STRING("Some Vec3: {}\n some X: {}\n some vector: {}\n some Config: {}\n"),
+        Vec3{3, 4, 5}, x, ints, config);
+    std::cout << "---\n";
+}
 
 int main()
 {
     LOG("position: {pos}", Vec3{1, 2, 3});
 
     std::cout << "Registry\n";
-    for (const auto& metaData : log::getRegistry())
+    for (const auto& metaData : logging::getRegistry())
     {
-        const log::LogMacroData& macroData = metaData.macroData;
+        const logging::LogMacroData& macroData = metaData.macroData;
         std::cout << "-------------------------\n";
         std::cout << "taskId: " << metaData.taskId << "\ntaskName: " << metaData.taskName << "\n";
         std::cout << "logId: " << metaData.logId << "\nfile: " << macroData.file << "\nline: " << macroData.line << "\n";
@@ -157,5 +172,8 @@ int main()
     testReflection();
 
     testTypeRegistry();
+    
+    testFormat();
+
     return 0;
 }
