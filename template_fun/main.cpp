@@ -14,6 +14,12 @@
 
 #include <ctti/type_id.hpp>
 
+struct Vec3
+{
+    float x, y, z;
+};
+REFLECT(Vec3, x, y, z);
+
 struct X
 {
     X() { std::cout << "construct\n";}
@@ -25,7 +31,6 @@ struct X
     int a;
     bool b;
 };
-
 REFLECT(X, a, b);
 
 
@@ -76,7 +81,7 @@ std::ostream& operator<<(std::ostream& os, const T& t)
     return os;
 }
 
-void testMacro()
+void testReflection()
 {
     Config config("abc", 22, true);
 
@@ -94,8 +99,27 @@ void testMacro()
     std::cout << config << "\n";
 }
 
+void testTypeRegistry()
+{
+    //registerType<Vec3>();
+    //registerType<std::string>();
+    
+    std::cout << "\n------- testTypeRegistry --------\n";
+    for (const auto& type: reflection::getTypeRegistry())
+    {
+        std::cout << "struct " << type.name << "\n{\n";
+        for (const auto& field: type.fields)
+        {
+            std::cout << "  " << field.name << ":\t" << field.typeName << "\n";
+        }
+        std::cout << "}\n\n";
+    }
+}
+
+
 int main()
 {
+    LOG("position: {pos}", Vec3{1, 2, 3});
 
     std::cout << "Registry\n";
     for (const auto& metaData : log::getRegistry())
@@ -120,7 +144,8 @@ int main()
     
     testEtw();
 
-    testMacro();
+    testReflection();
 
+    testTypeRegistry();
     return 0;
 }

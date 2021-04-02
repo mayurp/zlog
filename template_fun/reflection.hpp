@@ -80,13 +80,48 @@ constexpr void for_each(F&& f)
     for_each<T>(std::forward<F>(f), std::make_index_sequence<R::N>{});
 }
 
-
 template <typename T, typename = void>
 constexpr bool is_reflected_v = false;
 
 template <typename T>
 constexpr bool is_reflected_v
     <T, std::void_t<decltype(reflection::reflect_members<T>::is_reflected)>> = true;
+
+// Type registry populated on static initialisation
+struct Type
+{
+    struct Field
+    {
+        std::string_view name;
+        std::string_view typeName;
+    };
+
+    std::string_view name;
+    std::vector<Field> fields;
+};
+
+static std::vector<Type>& getTypeRegistry()
+{
+    static std::vector<Type> registry;
+    return registry;
+}
+
+template<typename T>
+struct RegisterType
+{
+    RegisterType()
+    {
+        static_assert(reflection::is_reflected_v<T>, "Type is not reflected");
+        Type type;
+        type.name = cstring2view(ctti::nameof<T>());
+        reflection::for_each<T>([&](const std::string_view& name, const auto& value)
+        {
+            using Value = remove_cvref_t<decltype(value)>;
+            type.fields.push_back({name, cstring2view(ctti::nameof<Value>())});
+        });
+        getTypeRegistry().push_back(type);
+    }
+};
 
 } // namespace reflection
 
@@ -108,6 +143,7 @@ struct reflect_members<STRUCT_NAME>\
         return getImpl<I, STRUCT_NAME, MAP_LIST(&STRUCT_NAME::FIELD, __VA_ARGS__)>(c);  \
     }\
 };\
+RegisterType<STRUCT_NAME> reg_##STRUCT_NAME ;\
 }\
 
 #endif /* reflection_h */
