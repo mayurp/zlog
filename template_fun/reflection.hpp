@@ -48,6 +48,14 @@ template<typename T>
 struct reflect_members
 {};
 
+// helper to pass member type info to for_each callback
+template<typename T, size_t Idx>
+struct MemberInfo
+{
+    using ValueType = remove_cvref_t<T>;
+    static constexpr size_t Index = Idx;
+};
+
 template <typename T, typename F, std::size_t... Idx>
 constexpr void for_each(T&& t, F&& f, std::index_sequence<Idx...>)
 {
@@ -69,7 +77,7 @@ constexpr void for_each(F&& f, std::index_sequence<Idx...>)
 {
     // TODO is this needed?
     using R = reflect_members<remove_cvref_t<T>>;
-    (f(R::names[Idx], decltype(R::template get<Idx>(std::declval<T>())){}), ...);
+    (f(R::names[Idx], MemberInfo<decltype(R::template get<Idx>(std::declval<T>())), Idx>()), ...);
 }
 
 template<typename T, typename F>
@@ -114,10 +122,10 @@ struct RegisterType
         static_assert(reflection::is_reflected_v<T>, "Type is not reflected");
         Type type;
         type.name = cstring2view(ctti::nameof<T>());
-        reflection::for_each<T>([&](const std::string_view& name, const auto& value)
+        reflection::for_each<T>([&](const std::string_view& memberName, auto memberInfo)
         {
-            using Value = remove_cvref_t<decltype(value)>;
-            type.fields.push_back({name, cstring2view(ctti::nameof<Value>())});
+            using ValueType = typename decltype(memberInfo)::ValueType;
+            type.fields.push_back({memberName, cstring2view(ctti::nameof<ValueType>())});
         });
         getTypeRegistry().push_back(type);
     }

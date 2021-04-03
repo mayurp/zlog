@@ -26,7 +26,7 @@ REFLECT_WITH_FORMATTER(Vec3, x, y, z)
 
 struct X
 {
-    X() { std::cout << "construct\n";}
+    X(int x) { std::cout << "construct\n";}
     X(const X&) { std::cout << "copy construct\n";}
     X(X&&) { std::cout << "move construct\n";}
     X& operator=(const X&) { std::cout << "copy assign\n"; return *this;}
@@ -52,7 +52,7 @@ public:
 
 public:
    Config(const std::string_view& _name, int _id, bool _data)
-    :name(_name), id(_id), data(_data){}
+    :name(_name), id(_id), data(_data), x(1){}
     
     // TODO how do we get rid of this?
     template <std::size_t I> friend decltype(auto) get(const Config&);
@@ -118,8 +118,8 @@ void testTypeRegistry()
 
 void testFormat()
 {
-    X x;
-    std::vector<X> xs = {X(), X() , X()};
+    X x(1);
+    std::vector<X> xs = {X(1), X(2) , X(3)};
     Config config("abc", 22, true);
 
     std::cout << "---\n";
@@ -155,15 +155,15 @@ void testLogs()
 {
     std::cout << "\n------- testLogs --------\n";
 
-    X x;
-    std::vector<X> xs = {X(), X() , X()};
+    X x(1);
+    std::vector<X> xs = {X(1), X(2) , X(3)};
     Config config("abc", 22, true);
 
     std::cout << "\n------- log calls start --------\n";
 
-    LOG("First line: {name} is {length}cm long", "jie", 12.f);
-    LOGTASK(SomeTask, "x: {x} is {config}", x, config);
-    LOGTASK(SomeTask, "v: {position}", Vec3{2, 10, -1});
+    LOG("1st line -- {name} is {length}cm long", "jie", 12.f);
+    LOGTASK(SomeTask, "2nd Line -- x: {x} is {config}", x, config);
+    LOGTASK(SomeTask, "3rd Line -- v: {position}", Vec3{2, 10, -1});
 
     std::cout << "\n------- log calls end --------\n";
     std::cout << "\n------- testLogs --------\n";
@@ -171,16 +171,18 @@ void testLogs()
 
 int main()
 {
+    std::cout << "main start\n";
 //    testLogRegistry();
 //    testEtw();
 //
 //    testReflection();
 //
-//    testTypeRegistry();
+    testTypeRegistry();
 //
 //    testFormat();
 
     testLogs();
 
+    std::cout << "main end\n";
     return 0;
 }
