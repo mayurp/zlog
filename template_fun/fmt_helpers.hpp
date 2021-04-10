@@ -13,57 +13,77 @@
 
 #define FMT_ENFORCE_COMPILE_STRING
 #include <fmt/format.h>
+//#include <fmt/ranges.h>
 
 
 namespace fmt_helpers
 {
 
-// TODO make constexpr string helpers a bit nicer
-
-template<typename T>
-constexpr int formatStringSize()
+// append to char array if not nullpt, otherwise just increment dst
+constexpr void append(char arr[], int& dst, const std::string_view& str)
 {
-    using R = reflection::reflect_members<T>;
-    int length = 0;
-    for (int i = 0; i < R::N; ++i)
+    for (char c : str)
     {
-        const std::string_view name = R::names[i];
-        length += (name.length() + 4);
-        if (i < R::N - 1)
-            length += 2;
+        if (arr)
+            arr[dst] = c;
+        ++dst;
     }
-    length += 2;
-    return length;
 }
 
 template <typename T>
 constexpr auto makeFormatString()
 {
-    constexpr int LENGTH = formatStringSize<T>();
-    FixedString<LENGTH> result = {};
-    using R = reflection::reflect_members<T>;
-
-    int dst = 0;
-    result.data[dst++] = '(';
-
-    for (int i = 0; i < R::N; ++i)
+    auto makeString = [](char arr[])
     {
-        const std::string_view name = R::names[i];
-        for (char c : name)
-            result.data[dst++] = c;
-        result.data[dst++] = ':';
-        result.data[dst++] = ' ';
-        result.data[dst++] = '{';
-        result.data[dst++] = '}';
-        if (i != R::N - 1)
+        using R = reflection::reflect_members<T>;
+        int dst = 0;
+        append(arr, dst, "(");
+        for (int i = 0; i < R::N; ++i)
         {
-            result.data[dst++] = ',';
-            result.data[dst++] = ' ';
+            const std::string_view name = R::names[i];
+            append(arr, dst, name);
+            append(arr, dst, ": {}");
+            if (i != R::N - 1)
+                append(arr, dst, ", ");
         }
-    }
-    result.data[dst++] = ')';
+        append(arr, dst, ")");
+        return dst;
+    };
 
-    result.size = dst;
+    // first pass to get size
+    constexpr int size = makeString(nullptr);
+    FixedString<size> result = {};
+    
+    // actually make string
+    makeString(result.data);
+    
+    return result;
+}
+
+template <typename T>
+constexpr auto makeTupleFormatString()
+{
+    auto makeString = [](char arr[])
+    {
+        constexpr int N = std::tuple_size<T>{};
+        int dst = 0;
+        append(arr, dst, "(");
+        for (int i = 0; i < N; ++i)
+        {
+            append(arr, dst, "{}");
+            if (i != N - 1)
+                append(arr, dst, ", ");
+        }
+        append(arr, dst, ")");
+        return dst;
+    };
+    
+    // first pass to get size
+    constexpr int size = makeString(nullptr);
+    FixedString<size> result = {};
+
+    // actually make string
+    makeString(result.data);
     
     return result;
 }
