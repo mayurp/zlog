@@ -110,14 +110,52 @@ struct ReflectionFormatter : fmt::formatter<std::string>
 
 }
 
-// standard containers
-// TODO make work for any container
-template<typename T>
-struct fmt::formatter<std::vector<T>> : fmt::formatter<std::string>
+template <typename T, typename = void>
+inline constexpr bool is_iterable_v = false;
+ 
+template <typename T>
+inline constexpr bool is_iterable_v<T,
+                                    std::void_t<decltype(std::declval<T>().begin(), std::declval<T>().end())>>
+                                    = true;
+
+template <typename T, typename Char, typename = void>
+inline constexpr bool is_range_v = false;
+
+template <typename T>
+inline constexpr bool is_tuple_v = false;
+
+template <typename... U>
+inline constexpr bool is_tuple_v<std::tuple<U...>> = true;
+
+template <typename T, typename Char>
+inline constexpr bool is_range_v<T, Char> = is_iterable_v<T> && !std::is_convertible<T, std::basic_string<Char>>::value && !std::is_constructible<std::basic_string_view<Char>, T>::value;
+
+
+// Use custom formatters for containers and tuples to ensure compile time strings are used
+template<typename T, typename Char>
+struct fmt::formatter<T, Char, typename std::enable_if_t<is_range_v<T, Char>>> : fmt::formatter<std::string>
 {
-    auto format(const std::vector<T>& t, fmt::format_context& ctx)
+    auto format(const T& t, fmt::format_context& ctx)
     {
         return formatter<std::string>::format(fmt::format(FMT_STRING("[{}]"), fmt::join(t, ", ")), ctx);
+    }
+};
+
+template<typename T, typename Char>
+struct fmt::formatter<T, Char, typename std::enable_if_t<is_tuple_v<T>>> : fmt::formatter<std::string>
+{
+    template <std::size_t ...Is>
+    auto makeFormatter(const T& t, fmt::format_context& ctx, std::index_sequence<Is...>)
+    {
+        static constexpr auto fstr = fmt_helpers::makeTupleFormatString<T>();
+        return formatter<std::string>::format(
+                                fmt::format(FMT_STRING(fstr.view()), std::get<Is>(t)...),
+                                ctx);
+    }
+
+    auto format(const T& t, fmt::format_context& ctx)
+    {
+        return makeFormatter(t, ctx, std::make_index_sequence<std::tuple_size<T>{}>{});;
     }
 };
 

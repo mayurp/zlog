@@ -6,6 +6,8 @@
 
 #include <array>
 #include <type_traits>
+#include <set>
+#include <map>
 #include <string_view>
 #include <string>
 #include <iostream>
@@ -37,6 +39,10 @@ struct X
 };
 REFLECT_WITH_FORMATTER(X, a, b)
 
+bool operator<(const X& lhs, const X& rhs)
+{
+    return lhs.a < rhs.a;
+}
 
 class Config {
 public:
@@ -157,6 +163,14 @@ void testLogs()
 
     X x(1);
     std::vector<X> xs = {X(1), X(2) , X(3)};
+
+    std::array xs_a =  {X(1), X(2) , X(3)};
+    std::set<X> xs_s(xs.begin(), xs.end());
+    std::map<std::string, X> xs_map = {{"a", X(1)}};
+
+    static_assert(is_range_v<decltype(xs_map), char>, "ss");
+    std::tuple<char, int, float> t{'a', 1, 2.0f};
+
     Config config("abc", 22, true);
 
     std::cout << "\n------- log calls start --------\n";
@@ -164,6 +178,11 @@ void testLogs()
     LOG("1st line -- {name} is {length}cm long", "jie", 12.f);
     LOGTASK(SomeTask, "2nd Line -- x: {x} is {config}", x, config);
     LOGTASK(SomeTask, "3rd Line -- v: {position}", Vec3{2, 10, -1});
+    LOGTASK(SomeTask, "4th Line -- xs vector: {xs}", xs);
+    LOGTASK(SomeTask, "5th Line -- xs array: {xs_a}", xs_a);
+    LOGTASK(SomeTask, "6th Line -- xs set: {xs_a}", xs_s);
+    //LOGTASK(SomeTask, "7th Line -- xs map: {xs_map}", xs_map);
+    LOGTASK(SomeTask, "8th Line -- tuple: {t}", t);
 
     std::cout << "\n------- log calls end --------\n";
     std::cout << "\n------- testLogs --------\n";
