@@ -10,7 +10,9 @@
 #define reflection_h
 
 #include "map_macro.hpp"
-#include "ctti_helpers.hpp"
+#include "type_name.hpp"
+
+#include <vector>
 
 
 namespace reflection
@@ -108,11 +110,7 @@ struct Type
     std::vector<Field> fields;
 };
 
-static inline std::vector<Type>& getTypeRegistry()
-{
-    static std::vector<Type> registry;
-    return registry;
-}
+std::vector<Type>& getTypeRegistry();
 
 template<typename T>
 struct RegisterType
@@ -121,11 +119,11 @@ struct RegisterType
     {
         static_assert(reflection::is_reflected_v<T>, "Type is not reflected");
         Type type;
-        type.name = cstring2view(ctti::nameof<T>());
+        type.name = type_name<T>();
         reflection::for_each<T>([&](const std::string_view& memberName, auto memberInfo)
         {
             using ValueType = typename decltype(memberInfo)::ValueType;
-            type.fields.push_back({memberName, cstring2view(ctti::nameof<ValueType>())});
+            type.fields.push_back({memberName, type_name<ValueType>()});
         });
         getTypeRegistry().push_back(type);
     }

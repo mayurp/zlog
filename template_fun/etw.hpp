@@ -9,7 +9,12 @@
 #ifndef etw_h
 #define etw_h
 
-#include <iostream>
+#include <type_traits>
+#include <utility>
+
+#define FMT_ENFORCE_COMPILE_STRING
+#include <fmt/format.h>
+
 
 
 struct Event
@@ -65,7 +70,8 @@ void logEtwImpl(Args&& args, std::index_sequence<Is...>)
     (pushArg(events[Is], std::get<Is>(args)), ...);
     for (const Event& e : events)
     {
-        std::cout << "Event data: " << e.data << ", size: " << e.size << std::endl;
+        //fmt::print(FMT_STRING("Event data: {}, size: {}\n"), e.data, e.size);
+        //std::cout << "Event data: " << e.data << ", size: " << e.size << std::endl;
     }
 }
 
@@ -76,35 +82,6 @@ void logEtw(Args&&... args)
     logEtwImpl(argsTuple, std::index_sequence_for<Args...>{});
 }
 
-int someCalc()
-{
-    return 45;
-}
-
-void testEtw()
-{
-    enum class Teanum : uint32_t
-    {
-        one,
-        two,
-        three
-    };
-    
-    struct X
-    {
-        X() { std::cout << "construct\n";}
-        X(const X&) { std::cout << "copy construct\n";}
-        X(X&&) { std::cout << "move construct\n";}
-        X& operator=(const X&) { std::cout << "copy assign\n"; return *this;}
-        X& operator=(X&&) { std::cout << "move assign\n"; return *this;}
-    };
-    Teanum t = Teanum::three;
-    ReflectionType f;
-    X x;
-    std::vector<X> v = {X()};
-    std::cout << "Start etw log\n";
-    logEtw(23, true, "hello", someCalc(), t, x, v, f);
-    std::cout << "Stop etw log\n";
-}
+void testEtw();
 
 #endif /* etw_h */

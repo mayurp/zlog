@@ -9,14 +9,17 @@
 #ifndef log_h
 #define log_h
 
+#include "etw.hpp"
 #include "format.hpp"
+#include "type_name.hpp"
 
-#include <iostream>
-#include <type_traits>
+#include <array>
 #include <string_view>
+#include <type_traits>
 #include <vector>
 
-#include "ctti_helpers.hpp"
+#define FMT_ENFORCE_COMPILE_STRING
+#include <fmt/format.h>
 #include "fmt_helpers.hpp"
 
 
@@ -47,11 +50,9 @@ struct LogMetaData
     std::vector<std::string_view> fieldTypes;
 };
 
-inline std::vector<LogMetaData>& getRegistry()
-{
-    static std::vector<LogMetaData> registry;
-    return registry;
-}
+std::vector<LogMetaData>& getRegistry();
+void addToRegistry(const LogMetaData& data);
+void addToVector(std::vector<std::string_view>& vec, const std::string_view& str);
 
 template <typename Task, typename MacroData, typename... Args>
 struct MetaDataNode
@@ -61,20 +62,20 @@ struct MetaDataNode
         LogMetaData data;
         data.logId = id;
         data.taskId = task_id<Task>;
-        data.taskName = cstring2view(ctti::nameof<Task>());
+        data.taskName = type_name<Task>();
         data.macroData = macroData;
         constexpr auto parsedFields = parseString([](){return MacroData{}().format;});
         static_assert(parsedFields.varNames.size() == sizeof...(Args), "number of args must match format string");
-        
+
         for (const auto& v : parsedFields.varNames)
-            data.fieldNames.emplace_back(v);
-        
-        (data.fieldTypes.emplace_back(cstring2view(ctti::nameof<Args>())), ...);
+            addToVector(data.fieldNames, v);
+
+        (addToVector(data.fieldTypes, type_name<Args>()), ...);
         
         for (const auto& k : Task::keywords)
-            data.keywords.emplace_back(k);
-        
-        getRegistry().emplace_back(data);
+            addToVector(data.keywords, k);
+
+        addToRegistry(data);
     }
 
     int32_t id;
@@ -88,19 +89,19 @@ inline MetaDataNode<Task, MacroData, Args...> meta_data_node{};
 template <typename Task, typename MacroData, typename... Args>
 void logFunc(Args&&... args)
 {
-    //static const auto id = meta_data_node<Task, MacroData, Args...>.id;
+    static const auto id = meta_data_node<Task, MacroData, Args...>.id;
     static constexpr auto parsedFields = parseString([](){return MacroData{}().format;});
     static constexpr auto cleanFormat = parsedFields.formatStr;
-    std::cout << fmt::format(FMT_STRING(cleanFormat.view()), std::forward<Args>(args)...) << std::endl;
+    logEtw(std::forward<Args>(args)...);
+    fmt::print(FMT_STRING(cleanFormat.view()), std::forward<Args>(args)...);
+    //std::cout << fmt::format(FMT_STRING(cleanFormat.view()), std::forward<Args>(args)...) << std::endl;
 }
 
 struct DefaultTask
 {
     static constexpr std::array keywords = {"he", "there"};
 };
-    
-//int defaultId = task_id<DefaultTask>;
-    
+
 #define LOGTASK(Task, format, ...)                              \
 do                                                              \
 {                                                               \
