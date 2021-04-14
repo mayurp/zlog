@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:template_fun.xcodeproj">
+      location = "self:/Users/mayur/Documents/workspace/logger/loggly.xcodeproj">
    </FileRef>
 </Workspace>
