@@ -1,15 +1,13 @@
 //
 //  log.hpp
-//  template_fun
 //
 //  Created by Mayur Patel on 10/03/2021.
 //  Copyright © 2021 Mayur Patel. All rights reserved.
 //
 
-#ifndef log_h
-#define log_h
+#pragma once
 
-#include "etw.hpp"
+//#include "etw.hpp"
 #include "format.hpp"
 #include "type_name.hpp"
 
@@ -19,8 +17,16 @@
 #include <vector>
 
 #define FMT_ENFORCE_COMPILE_STRING
-#include <fmt/format.h>
-#include "fmt_helpers.hpp"
+//#include <fmt/format.h>
+//#include "fmt_helpers.hpp"
+
+
+#undef EXPORT
+#ifdef BLIP_BASE_MODULE
+#define EXPORT __declspec( dllexport )
+#else
+#define EXPORT __declspec( dllimport )
+#endif
 
 
 namespace logging
@@ -50,9 +56,9 @@ struct LogMetaData
     std::vector<std::string_view> fieldTypes;
 };
 
-std::vector<LogMetaData>& getRegistry();
-void addToRegistry(const LogMetaData& data);
-void addToVector(std::vector<std::string_view>& vec, const std::string_view& str);
+EXPORT std::vector<LogMetaData>& getRegistry();
+EXPORT void addToRegistry(const LogMetaData& data);
+EXPORT void addToVector(std::vector<std::string_view>& vec, const std::string_view& str);
 
 template <typename Task, typename MacroData, typename... Args>
 struct MetaDataNode
@@ -64,11 +70,11 @@ struct MetaDataNode
         data.taskId = task_id<Task>;
         data.taskName = type_name<Task>();
         data.macroData = macroData;
-        constexpr auto parsedFields = parseString([](){return MacroData{}().format;});
-        static_assert(parsedFields.varNames.size() == sizeof...(Args), "number of args must match format string");
+        //constexpr auto parsedFields = ParseString<macroData.format>{}();
+        //static_assert(parsedFields.argNames.size() == sizeof...(Args), "number of args must match format string");
 
-        for (const auto& v : parsedFields.varNames)
-            addToVector(data.fieldNames, v);
+        //for (const auto& v : parsedFields.argNames)
+        //    addToVector(data.fieldNames, v);
 
         (addToVector(data.fieldTypes, type_name<Args>()), ...);
         
@@ -90,11 +96,12 @@ template <typename Task, typename MacroData, typename... Args>
 void logFunc(Args&&... args)
 {
     static const auto id = meta_data_node<Task, MacroData, Args...>.id;
-    static constexpr auto parsedFields = parseString([](){return MacroData{}().format;});
-    static constexpr auto cleanFormat = parsedFields.formatStr;
-    logEtw(std::forward<Args>(args)...);
-    fmt::print(FMT_STRING(cleanFormat.view()), std::forward<Args>(args)...);
-    //std::cout << fmt::format(FMT_STRING(cleanFormat.view()), std::forward<Args>(args)...) << std::endl;
+    static constexpr std::string_view format = MacroData{}().format;
+    static constexpr auto parsedFields = ParseString<format>{}();
+    static constexpr std::string_view cleanFormat = parsedFields.formatStr.view();
+    //logEtw(std::forward<Args>(args)...);
+    //console << fmt::format((cleanFormat), std::forward<Args>(args)...);
+    console << cleanFormat;// fmt::format(FMT_STRING(cleanFormat.view()), std::forward<Args>(args)...) << std::endl;
 }
 
 struct DefaultTask
@@ -120,5 +127,3 @@ do                                                              \
 #define LOG(format, ...)  LOGTASK(logging::DefaultTask, format, __VA_ARGS__)
 
 } // namespace logging
-
-#endif /* log_h */

@@ -11,15 +11,15 @@
 namespace fmt_helpers
 {
 
-// append to char array if not nullpt, otherwise just increment dst
-constexpr void append(char arr[], int& dst, const std::string_view& str)
-{
-    for (char c : str)
-    {
-        if (arr)
-            arr[dst] = c;
-        ++dst;
-    }
-}
+//// append to char array if not nullpt, otherwise just increment dst
+//constexpr void append(char arr[], int& dst, const std::string_view& str)
+//{
+//    for (char c : str)
+//    {
+//        if (arr)
+//            arr[dst] = c;
+//        ++dst;
+//    }
+//}
 
 }

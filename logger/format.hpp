@@ -25,92 +25,101 @@ struct FixedString
 //template <typename StringHolder>
 //constexpr auto parseString(StringHolder holder)
 
-template <typename Char>
-constexpr size_t countVarNames(const Char* it)
+template <typename STRING>//typename Char>
+constexpr size_t countArgs(const STRING& str)
 {
     size_t count = 0;
-    while(*it)
-    {
-        char ch = *it++;
-        // TODO get char type
-        if (ch == '{')
-            ++count;
-    }
+    for (char c : str)
+        if (c == '{') ++count;
     return count;
 }
 
 template<size_t SSIZE, size_t NVARS>
-struct ParseResult{
+struct ParseResult
+{
     FixedString<SSIZE> formatStr;
-    std::array<std::string_view, NVARS> varNames;
+    std::array<std::string_view, NVARS> argNames;
 };
 
-
-template <typename StringHolder>
-constexpr auto parseString(StringHolder holder)
+template <std::string_view const& formatStr>
+struct ParseString
 {
-    using Char = char;
-    constexpr std::string_view formatStr = holder();
-    FixedString<formatStr.length()> result = {};
-    constexpr size_t nVars = countVarNames(formatStr.begin());
-    std::array<std::string_view, nVars> varNames = {};
-    
-    int argId = 0;
-    auto it = formatStr.begin();
-    int dst = 0;
-    while (*it)
+    static constexpr auto impl()
     {
-        char ch = *it++;
-        if (ch != '{' && ch != '}')
-        {
-            result.data[dst++] = ch;
-            continue;
-        }
-        if (ch == '{')
-        {
-            if (*it == '}')
-                throw std::runtime_error("must specify var name");
+        using Char = char;
+        //constexpr std::string_view formatStr = holder;
+        FixedString<formatStr.size()> result = {};
+        constexpr size_t nArgs = countArgs(formatStr);
+        static_assert(nArgs <= 10, "Maximum of 10 args supported");
+        std::array<std::string_view, nArgs> argNames;
 
-            result.data[dst++] = '{';
-            result.data[dst++] = '0' + argId++;            
-            const Char* start = it;
-            for (;*it && *it != '}'; ++it)
-            {}
-            if (*it != '}')
-                throw std::runtime_error("unmatched '{' in format string");
-            
-            const Char* end = it-1;
-            varNames[argId-1] = std::string_view(start, end - start + 1);
-            
-            result.data[dst++] = '}';
-            ++it;
-            continue;
-        }
-        if (ch == '}')
+        //size_t argIndex = 0;
+        auto it = formatStr.begin();
+        int dst = 0;
+        while (it != formatStr.end())
         {
-            throw std::runtime_error("unmatched '}' in format string");
+            const Char ch = *it++;
+            //if (ch != '{' && ch != '}')
+            {
+                result.data[dst++] = ch;
+                continue;
+            }
+            //if (ch == '{')
+            //{
+            //    // TODO handle escapeed brances "{{"
+
+            //    if (it == formatStr.end() || *it == '}')
+            //        throw std::runtime_error("must specify arg name");
+
+            //    const auto start = it;
+            //    for (;it != formatStr.end() && *it != '}'; ++it)
+            //    {}
+            //    if (it == formatStr.end() || *it != '}')
+            //        throw std::runtime_error("unmatched '{' in format string");
+            //    const auto end = it;
+
+            //    result.data[dst++] = '{';
+            //    result.data[dst++] = '0' + Char(argIndex); // TODO support more than 10 args     
+            //    argNames[argIndex] = std::string_view(&(*start), end - start);  // wrong??
+            //    if (argNames[argIndex].size() != 1)
+            //        throw std::runtime_error("oh no");
+            //    argIndex++;
+
+            //    result.data[dst++] = '}';
+            //    ++it;
+            //    continue;
+            //}
+            //if (ch == '}')
+            //{
+            //    throw std::runtime_error("unmatched '}' in format string");
+            //}
         }
+        result.size = dst;
+
+        //// check if argnames are unique
+        //for (int i = 0; i < argNames.size(); ++i)
+        //{
+        //    for (int j = i+1; j < argNames.size(); ++j)
+        //    {
+        //        if (argNames[i] == argNames[j])
+        //            throw std::runtime_error("arg names repeated in format string");
+        //    }
+        //}
+
+        return ParseResult<formatStr.size(), nArgs>{result, argNames};
     }
-    result.size = dst;
-    
-    // check if argnames are unique
-    for (int i = 0; i < varNames.size(); ++i)
+
+    auto operator()()
     {
-        for (int j = i+1; j < varNames.size(); ++j)
-        {
-            if (varNames[i] == varNames[j])
-                throw std::runtime_error("arg names repeated in format string");
-        }
+        return impl();
     }
-    
-    return ParseResult<formatStr.length(), nVars>{result, varNames};
-}
+};
 
-#define PARSE_STRING(text) \
-parseString([](){return text;})
-
-
-#define FORMAT(text) [](){return text;}
-
+//#define PARSE_STRING(text) \
+//parseString([](){return text;})
+//
+//
+//#define FORMAT(text) [](){return text;}
+//
 
 #endif /* format_h */
