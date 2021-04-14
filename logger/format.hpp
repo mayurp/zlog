@@ -115,11 +115,4 @@ struct ParseString
     }
 };
 
-//#define PARSE_STRING(text) \
-//parseString([](){return text;})
-//
-//
-//#define FORMAT(text) [](){return text;}
-//
-
 #endif /* format_h */
