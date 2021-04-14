@@ -12,7 +12,6 @@
 		77CFE436260FBAF9008C39BE /* tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 77CFE435260FBAF9008C39BE /* tests.cpp */; };
 		77CFE44E26171F3D008C39BE /* libfmt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 77CFE44D26171F3D008C39BE /* libfmt.a */; };
 		77CFE4592623BE82008C39BE /* log.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 77CFE4582623BE81008C39BE /* log.cpp */; };
-		77CFE45D262504EC008C39BE /* fmt_helpers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 77CFE45C262504EB008C39BE /* fmt_helpers.cpp */; };
 		77CFE4622625074A008C39BE /* reflection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 77CFE4612625074A008C39BE /* reflection.cpp */; };
 /* End PBXBuildFile section */
 
@@ -43,7 +42,6 @@
 		77CFE4502617C037008C39BE /* fmt_helpers.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = fmt_helpers.hpp; sourceTree = "<group>"; };
 		77CFE4562623B370008C39BE /* type_name.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = type_name.hpp; sourceTree = "<group>"; };
 		77CFE4582623BE81008C39BE /* log.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = log.cpp; sourceTree = "<group>"; };
-		77CFE45C262504EB008C39BE /* fmt_helpers.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = fmt_helpers.cpp; sourceTree = "<group>"; };
 		77CFE4612625074A008C39BE /* reflection.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = reflection.cpp; sourceTree = "<group>"; };
 		77D4D9D025FED8440022D153 /* etw.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = etw.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -93,7 +91,6 @@
 				77CFE435260FBAF9008C39BE /* tests.cpp */,
 				77CFE44726164221008C39BE /* ctti_helpers.hpp */,
 				77CFE4502617C037008C39BE /* fmt_helpers.hpp */,
-				77CFE45C262504EB008C39BE /* fmt_helpers.cpp */,
 				77CFE4562623B370008C39BE /* type_name.hpp */,
 			);
 			path = template_fun;
@@ -168,7 +165,6 @@
 				77CFE4622625074A008C39BE /* reflection.cpp in Sources */,
 				771F0B7A2422D7FD00AFD02B /* main.cpp in Sources */,
 				777DDEFE25F6F7D8006B5FFF /* somewhere.cpp in Sources */,
-				77CFE45D262504EC008C39BE /* fmt_helpers.cpp in Sources */,
 				77CFE4592623BE82008C39BE /* log.cpp in Sources */,
 				77CFE436260FBAF9008C39BE /* tests.cpp in Sources */,
 			);
