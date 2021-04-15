@@ -102,8 +102,8 @@ void logFunc(Args&&... args)
     static constexpr auto parsedFields = ParseString<format>{}();
     static constexpr std::string_view cleanFormat = parsedFields.formatStr.view();
     //logEtw(std::forward<Args>(args)...);
-    //console << fmt::format((cleanFormat), std::forward<Args>(args)...);
-    console << cleanFormat;// fmt::format(FMT_STRING(cleanFormat.view()), std::forward<Args>(args)...) << std::endl;
+    console << fmt::format(FMT_STRING(cleanFormat), std::forward<Args>(args)...);
+    //console << cleanFormat;// fmt::format(FMT_STRING(cleanFormat.view()), std::forward<Args>(args)...) << std::endl;
 }
 
 struct DefaultTask
