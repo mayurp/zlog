@@ -76,8 +76,7 @@ struct ParseString
 
                 result.data[dst++] = '{';
                 result.data[dst++] = '0' + Char(argIndex); // TODO support more than 10 args
-                argNames[argIndex] = std::string_view(&(*start), end - start);  // wrong??
-                argIndex++;
+                argNames[argIndex++] = std::string_view(&(*start), end - start);  // wrong??
 
                 result.data[dst++] = '}';
                 ++it;
