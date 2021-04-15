@@ -31,54 +31,56 @@ constexpr size_t countArgs(const std::string_view& str)
     return count;
 }
 
-template<size_t SSIZE, size_t NVARS>
+template<size_t Size, size_t NArgs>
 struct ParseResult
 {
-    FixedString<SSIZE> formatStr;
-    std::array<std::string_view, NVARS> argNames;
+    FixedString<Size> format;
+    std::array<std::string_view, NArgs> argNames;
 };
 
-template <std::string_view const& formatStr>
-struct ParseString
+template <std::string_view const& Format>
+struct ParseFormatString
 {
+private:
     static constexpr auto impl()
     {
         using Char = char;
-        FixedString<formatStr.size()> result = {};
-        constexpr size_t nArgs = countArgs(formatStr);
+        constexpr std::string_view format = Format; // workaround for MSVC bug
+        FixedString<format.size()> strippedFormat = {};
+        constexpr size_t nArgs = countArgs(format);
         static_assert(nArgs <= 10, "Maximum of 10 args supported");
         std::array<std::string_view, nArgs> argNames;
 
         size_t argIndex = 0;
-        auto it = formatStr.begin();
+        auto it = format.begin();
         int dst = 0;
-        while (it != formatStr.end())
+        while (it != format.end())
         {
             const Char ch = *it++;
             if (ch != '{' && ch != '}')
             {
-                result.data[dst++] = ch;
+                strippedFormat.data[dst++] = ch;
                 continue;
             }
             if (ch == '{')
             {
                 // TODO handle escapeed brances "{{"
 
-                if (it == formatStr.end() || *it == '}')
+                if (it == format.end() || *it == '}')
                     throw std::runtime_error("must specify arg name");
 
                 const auto start = it;
-                for (;it != formatStr.end() && *it != '}'; ++it)
+                for (;it != format.end() && *it != '}'; ++it)
                 {}
-                if (it == formatStr.end() || *it != '}')
+                if (it == format.end() || *it != '}')
                     throw std::runtime_error("unmatched '{' in format string");
                 const auto end = it;
 
-                result.data[dst++] = '{';
-                result.data[dst++] = '0' + Char(argIndex); // TODO support more than 10 args
+                strippedFormat.data[dst++] = '{';
+                strippedFormat.data[dst++] = '0' + Char(argIndex); // TODO support more than 10 args
                 argNames[argIndex++] = std::string_view(&(*start), end - start);  // wrong??
 
-                result.data[dst++] = '}';
+                strippedFormat.data[dst++] = '}';
                 ++it;
                 continue;
             }
@@ -87,7 +89,7 @@ struct ParseString
                 throw std::runtime_error("unmatched '}' in format string");
             }
         }
-        result.size = dst;
+        strippedFormat.size = dst;
 
         // check if argnames are unique
         for (int i = 0; i < argNames.size(); ++i)
@@ -99,13 +101,14 @@ struct ParseString
             }
         }
 
-        return ParseResult<formatStr.size(), nArgs>{result, argNames};
+        return ParseResult<format.size(), nArgs>{strippedFormat, argNames};
     }
 
-    constexpr auto operator()()
-    {
-        return impl();
-    }
+    static constexpr auto parseResult = impl();
+
+public:
+    static constexpr std::string_view format = parseResult.format.view();
+    static constexpr auto argNames = parseResult.argNames;
 };
 
 #endif /* format_h */

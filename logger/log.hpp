@@ -99,8 +99,8 @@ void logFunc(Args&&... args)
 {
     static const auto id = meta_data_node<Task, MacroData, Args...>.id;
     static constexpr std::string_view format = MacroData{}().format;
-    static constexpr auto parseResult = ParseString<format>{}();
-    static constexpr std::string_view cleanFormat = parseResult.formatStr.view();
+    static constexpr auto parseResult = ParseFormatString<format>{};
+    static constexpr std::string_view cleanFormat = parseResult.format;
     //logEtw(std::forward<Args>(args)...);
     console << fmt::format(FMT_STRING(cleanFormat), std::forward<Args>(args)...);
     //console << cleanFormat;// fmt::format(FMT_STRING(cleanFormat.view()), std::forward<Args>(args)...) << std::endl;
