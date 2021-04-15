@@ -1,5 +1,3 @@
-#include "somewhere.hpp"
-
 #include "log.hpp"
 #include "etw.hpp"
 #include "reflection.hpp"
@@ -14,7 +12,6 @@
 #include <ostream>
 #include <sstream>
 
-#include <ctti/type_id.hpp>
 #define FMT_ENFORCE_COMPILE_STRING
 #include <fmt/format.h>
 #include "fmt_helpers.hpp"

@@ -109,7 +109,7 @@ struct ParseString
         return ParseResult<formatStr.size(), nArgs>{result, argNames};
     }
 
-    auto operator()()
+    constexpr auto operator()()
     {
         return impl();
     }

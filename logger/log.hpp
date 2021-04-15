@@ -5,29 +5,31 @@
 //  Copyright © 2021 Mayur Patel. All rights reserved.
 //
 
-#pragma once
+#ifndef log_hpp
+#define log_hpp
 
 //#include "etw.hpp"
 #include "format.hpp"
 #include "type_name.hpp"
-
 #include <array>
 #include <string_view>
 #include <type_traits>
 #include <vector>
 
 #define FMT_ENFORCE_COMPILE_STRING
-//#include <fmt/format.h>
-//#include "fmt_helpers.hpp"
+#include <fmt/format.h>
+#include "fmt_helpers.hpp"
 
 
-#undef EXPORT
-#ifdef BLIP_BASE_MODULE
-#define EXPORT __declspec( dllexport )
-#else
-#define EXPORT __declspec( dllimport )
-#endif
-
+//#undef EXPORT
+//#ifdef BLIP_BASE_MODULE
+//#define EXPORT __declspec( dllexport )
+//#else
+//#define EXPORT __declspec( dllimport )
+//#endif
+#include <iostream>
+#define EXPORT
+#define console std::cout
 
 namespace logging
 {
@@ -127,3 +129,5 @@ do                                                              \
 #define LOG(format, ...)  LOGTASK(logging::DefaultTask, format, __VA_ARGS__)
 
 } // namespace logging
+
+#endif // log_hpp
