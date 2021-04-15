@@ -67,16 +67,19 @@ struct MetaDataNode
 {
     MetaDataNode() : id(log_id++)
     {
+        static constexpr LogMacroData macroData = MacroData{}();
         LogMetaData data;
         data.logId = id;
         data.taskId = task_id<Task>;
         data.taskName = type_name<Task>();
         data.macroData = macroData;
-        //constexpr auto parsedFields = ParseString<macroData.format>{}();
-        //static_assert(parsedFields.argNames.size() == sizeof...(Args), "number of args must match format string");
+        
+        static constexpr std::string_view format = macroData.format;
+        static constexpr auto argNames = ParseFormatString<format>{}.argNames;
+        static_assert(argNames.size() == sizeof...(Args), "number of args must match format string");
 
-        //for (const auto& v : parsedFields.argNames)
-        //    addToVector(data.fieldNames, v);
+        for (const auto& v : argNames)
+            addToVector(data.fieldNames, v);
 
         (addToVector(data.fieldTypes, type_name<Args>()), ...);
         
@@ -87,23 +90,20 @@ struct MetaDataNode
     }
 
     int32_t id;
-    LogMacroData macroData = MacroData{}();
 };
 
 template<typename Task, typename MacroData, typename... Args>
 inline MetaDataNode<Task, MacroData, Args...> meta_data_node{};
 
-
 template <typename Task, typename MacroData, typename... Args>
 void logFunc(Args&&... args)
 {
-    static const auto id = meta_data_node<Task, MacroData, Args...>.id;
+    static const auto metaData = meta_data_node<Task, MacroData, Args...>;
+    static const int id = metaData.id;
     static constexpr std::string_view format = MacroData{}().format;
-    static constexpr auto parseResult = ParseFormatString<format>{};
-    static constexpr std::string_view cleanFormat = parseResult.format;
+    static constexpr std::string_view parsedFormat = ParseFormatString<format>{}.format;
     //logEtw(std::forward<Args>(args)...);
-    console << fmt::format(FMT_STRING(cleanFormat), std::forward<Args>(args)...);
-    //console << cleanFormat;// fmt::format(FMT_STRING(cleanFormat.view()), std::forward<Args>(args)...) << std::endl;
+    console << fmt::format(FMT_STRING(parsedFormat), std::forward<Args>(args)...) << std::endl;
 }
 
 struct DefaultTask
