@@ -22,33 +22,32 @@ struct FixedString
     size_t size = N; // default to entire buffer
 };
 
-//template <typename STRING>//typename Char>
-constexpr size_t countArgs(const std::string_view& str)
-{
-    size_t count = 0;
-    for (char c : str)
-        if (c == '{') ++count;
-    return count;
-}
-
-template<size_t Size, size_t NArgs>
-struct ParseResult
-{
-    FixedString<Size> format;
-    std::array<std::string_view, NArgs> argNames;
-};
-
+// Compile time parsing of log format string to:
+//    1. Extract named arguments 
+//    2. Strip out arg names so make it compatible with fmt
+//       example: "Some message: {argName}"  -> "Some message: {}"
+//
+// TODO: handle escaped braces
+// TOOD: allow for fmt specifiers. e.g {argName:d}.  Currently the entire string inside {} is taken as the arg name 
 template <std::string_view const& Format>
 struct ParseFormatString
 {
 private:
-    static constexpr auto impl()
+    static constexpr size_t countArgs(const std::string_view& str)
+    {
+        size_t count = 0;
+       for (char c : str)
+            if (c == '{') ++count;
+        return count;
+    }
+
+    // TODO simplify
+    static constexpr auto parse()
     {
         using Char = char;
         constexpr std::string_view format = Format; // workaround for MSVC bug
         FixedString<format.size()> strippedFormat = {};
         constexpr size_t nArgs = countArgs(format);
-        static_assert(nArgs <= 10, "Maximum of 10 args supported");
         std::array<std::string_view, nArgs> argNames;
 
         size_t argIndex = 0;
@@ -64,8 +63,6 @@ private:
             }
             if (ch == '{')
             {
-                // TODO handle escapeed brances "{{"
-
                 if (it == format.end() || *it == '}')
                     throw std::runtime_error("must specify arg name");
 
@@ -74,11 +71,10 @@ private:
                 {}
                 if (it == format.end() || *it != '}')
                     throw std::runtime_error("unmatched '{' in format string");
-                const auto end = it;
+                const auto end = it; // 1 position after end of string
 
                 strippedFormat.data[dst++] = '{';
-                strippedFormat.data[dst++] = '0' + Char(argIndex); // TODO support more than 10 args
-                argNames[argIndex++] = std::string_view(&(*start), end - start);  // wrong??
+                argNames[argIndex++] = std::string_view(&(*start), end - start);
 
                 strippedFormat.data[dst++] = '}';
                 ++it;
@@ -91,7 +87,7 @@ private:
         }
         strippedFormat.size = dst;
 
-        // check if argnames are unique
+        // check argnames are unique
         for (int i = 0; i < argNames.size(); ++i)
         {
             for (int j = i+1; j < argNames.size(); ++j)
@@ -101,14 +97,13 @@ private:
             }
         }
 
-        return ParseResult<format.size(), nArgs>{strippedFormat, argNames};
+        return std::pair{strippedFormat, argNames};
     }
 
-    static constexpr auto parseResult = impl();
-
+    static constexpr auto parseResult = parse();
 public:
-    static constexpr std::string_view format = parseResult.format.view();
-    static constexpr auto argNames = parseResult.argNames;
+    static constexpr std::string_view format = parseResult.first.view();
+    static constexpr auto argNames = parseResult.second;
 };
 
 #endif /* format_h */
