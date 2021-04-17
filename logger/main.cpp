@@ -17,6 +17,8 @@
 #include "fmt_helpers.hpp"
 
 
+int ETWStartEventId = 1000;
+
 struct Vec3
 {
     float x, y, z;
@@ -140,7 +142,7 @@ void testLogRegistry()
         const logging::LogMacroData& macroData = metaData.macroData;
         std::cout << "-------------------------\n";
         std::cout << "taskId: " << metaData.taskId << "\ntaskName: " << metaData.taskName << "\n";
-        std::cout << "logId: " << metaData.logId << "\nfile: " << macroData.file << "\nline: " << macroData.line << "\n";
+        std::cout << "logId: " << metaData.eventId << "\nfile: " << macroData.file << "\nline: " << macroData.line << "\n";
         std::cout << "formatStr: " << macroData.format << "\n";
         for (int i = 0; i < metaData.fieldNames.size(); ++i)
             std::cout << metaData.fieldNames[i] << " : " << metaData.fieldTypes[i] << "\n";
@@ -172,14 +174,14 @@ void testLogs()
 
     std::cout << "\n------- log calls start --------\n";
 
-    LOG("1st line -- {name} is {length}cm long", "jie", 12.f);
-    LOGTASK(SomeTask, "2nd Line -- x: {x} is {config}", x, config);
-    LOGTASK(SomeTask, "3rd Line -- v: {position}", Vec3{2, 10, -1});
-    LOGTASK(SomeTask, "4th Line -- xs vector: {xs}", xs);
-    LOGTASK(SomeTask, "5th Line -- xs array: {xs_a}", xs_a);
-    LOGTASK(SomeTask, "6th Line -- xs set: {xs_a}", xs_s);
+    LOGI("1st line -- {name} is {length}cm long", "jie", 12.f);
+    LOGTASKI(SomeTask, "2nd Line -- x: {x} is {config}", x, config);
+    LOGTASKI(SomeTask, "3rd Line -- v: {position}", Vec3{2, 10, -1});
+    LOGTASKI(SomeTask, "4th Line -- xs vector: {xs}", xs);
+    LOGTASKI(SomeTask, "5th Line -- xs array: {xs_a}", xs_a);
+    LOGTASKI(SomeTask, "6th Line -- xs set: {xs_a}", xs_s);
     //LOGTASK(SomeTask, "7th Line -- xs map: {xs_map}", xs_map);
-    LOGTASK(SomeTask, "8th Line -- tuple: {t}", t);
+    LOGTASKI(SomeTask, "8th Line -- tuple: {t}", t);
 
     std::cout << "\n------- log calls end --------\n";
     std::cout << "\n------- testLogs --------\n";

@@ -12,6 +12,7 @@
 		77CE34E02627ACAD00B70B56 /* tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 77CE34D72627ACAD00B70B56 /* tests.cpp */; };
 		77CE34E12627ACAD00B70B56 /* log.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 77CE34DC2627ACAD00B70B56 /* log.cpp */; };
 		77CE34F92627DFAE00B70B56 /* libfmt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 77CE34E52627ACDB00B70B56 /* libfmt.a */; };
+		77CE34FC262A651F00B70B56 /* test_logging.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 77CE34FB262A651F00B70B56 /* test_logging.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -40,6 +41,7 @@
 		77CE34DB2627ACAD00B70B56 /* reflection.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = reflection.hpp; sourceTree = "<group>"; };
 		77CE34DC2627ACAD00B70B56 /* log.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = log.cpp; sourceTree = "<group>"; };
 		77CE34E52627ACDB00B70B56 /* libfmt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfmt.a; path = "thirdparty/fmt-7.1.3/build/libfmt.a"; sourceTree = "<group>"; };
+		77CE34FB262A651F00B70B56 /* test_logging.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_logging.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -82,8 +84,9 @@
 				77CE34D42627ACAD00B70B56 /* map_macro.hpp */,
 				77CE34D02627ACAD00B70B56 /* reflection.cpp */,
 				77CE34DB2627ACAD00B70B56 /* reflection.hpp */,
-				77CE34D72627ACAD00B70B56 /* tests.cpp */,
 				77CE34D92627ACAD00B70B56 /* type_name.hpp */,
+				77CE34D72627ACAD00B70B56 /* tests.cpp */,
+				77CE34FB262A651F00B70B56 /* test_logging.cpp */,
 				77CE34C72627ABF400B70B56 /* main.cpp */,
 			);
 			path = logger;
@@ -153,6 +156,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				77CE34FC262A651F00B70B56 /* test_logging.cpp in Sources */,
 				77CE34DE2627ACAD00B70B56 /* reflection.cpp in Sources */,
 				77CE34E02627ACAD00B70B56 /* tests.cpp in Sources */,
 				77CE34C82627ABF400B70B56 /* main.cpp in Sources */,
@@ -281,7 +285,12 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CODE_SIGN_STYLE = Automatic;
 				GCC_C_LANGUAGE_STANDARD = c11;
-				HEADER_SEARCH_PATHS = "thirdparty/fmt-7.1.3/include";
+				HEADER_SEARCH_PATHS = (
+					"thirdparty/fmt-7.1.3/include",
+					thirdparty,
+					thirdparty/magic_enum/include,
+					thirdparty/catch2/single_include,
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/thirdparty/fmt-7.1.3/build",
@@ -297,7 +306,12 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CODE_SIGN_STYLE = Automatic;
 				GCC_C_LANGUAGE_STANDARD = c11;
-				HEADER_SEARCH_PATHS = "thirdparty/fmt-7.1.3/include";
+				HEADER_SEARCH_PATHS = (
+					"thirdparty/fmt-7.1.3/include",
+					thirdparty,
+					thirdparty/magic_enum/include,
+					thirdparty/catch2/single_include,
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/thirdparty/fmt-7.1.3/build",

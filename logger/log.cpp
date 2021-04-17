@@ -10,9 +10,13 @@
 
 #include "magic_enum.hpp"
 
+#include <sstream>
+#include <map>
 #include <regex>
 #include <vector>
 
+#define CHECK_LOGIC(X) assert(X)
+#define CONTEXT()
 
 namespace logging
 {

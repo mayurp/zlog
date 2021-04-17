@@ -147,12 +147,16 @@ do                                                              \
 } while(false)                                                  \
 
 #define LOG(level, format, ...)  LOGTASK(level, logging::DefaultTask, format, __VA_ARGS__)
+
 #define LOGA(...) LOG(LogLevel::All,  __VA_ARGS__)
 #define LOGC(...) LOG(LogLevel::Critical,  __VA_ARGS__)
 #define LOGE(...) LOG(LogLevel::Error,  __VA_ARGS__)
 #define LOGW(...) LOG(LogLevel::Warning,  __VA_ARGS__)
 #define LOGI(...) LOG(LogLevel::Informational,  __VA_ARGS__)
 #define LOGD(...) LOG(LogLevel::Verbose,  __VA_ARGS__)
+
+// TODO add all of these
+#define LOGTASKI(...) LOGTASK(LogLevel::Informational,  __VA_ARGS__)
 
 } // namespace logging
 
