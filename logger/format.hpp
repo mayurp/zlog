@@ -28,7 +28,6 @@ struct FixedString
 //       example: "Some message: {argName}"  -> "Some message: {}"
 //
 // TODO: handle escaped braces
-// TOOD: allow for fmt specifiers. e.g {argName:d}.  Currently the entire string inside {} is taken as the arg name 
 template <std::string_view const& Format>
 struct ParseFormatString
 {
@@ -36,9 +35,15 @@ private:
     static constexpr size_t countArgs(const std::string_view& str)
     {
         size_t count = 0;
-       for (char c : str)
-            if (c == '{') ++count;
+        for (char c : str) if (c == '{') ++count;
         return count;
+    }
+
+    // TODO validate argNmme?
+    static constexpr std::string_view getArgName(const std::string_view& argStr)
+    {
+        const size_t colon_pos = argStr.find(':');
+        return argStr.substr(0, colon_pos);
     }
 
     // TODO simplify
@@ -63,27 +68,26 @@ private:
             }
             if (ch == '{')
             {
-                if (it == format.end() || *it == '}')
-                    throw std::runtime_error("must specify arg name");
-
-                const auto start = it;
-                for (;it != format.end() && *it != '}'; ++it)
-                {}
-                if (it == format.end() || *it != '}')
-                    throw std::runtime_error("unmatched '{' in format string");
-                const auto end = it; // 1 position after end of string
-
+                const size_t pos = it - format.begin();
+                const size_t end_brace_pos = format.find('}', pos);
+                if (end_brace_pos == std::string_view::npos)
+                    throw std::runtime_error("unmatched { in format string");
+                const size_t argLen = end_brace_pos - pos;
+                if (argLen < 1)
+                    throw std::runtime_error("must specify an arg name");
+                const std::string_view argStr(it, argLen);
+                const std::string_view argName = getArgName(std::string_view(&(*it), argLen));
+                const std::string_view argFormatting = argStr.substr(argName.size());
+                argNames[argIndex++] = argName;
                 strippedFormat.data[dst++] = '{';
-                argNames[argIndex++] = std::string_view(&(*start), end - start);
-
+                for (char c : argFormatting)
+                    strippedFormat.data[dst++] = c;
                 strippedFormat.data[dst++] = '}';
-                ++it;
+                it += (argLen + 1);
                 continue;
             }
             if (ch == '}')
-            {
                 throw std::runtime_error("unmatched '}' in format string");
-            }
         }
         strippedFormat.size = dst;
 
