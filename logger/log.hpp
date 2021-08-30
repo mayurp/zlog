@@ -135,34 +135,34 @@ struct DefaultTask
     static constexpr std::array keywords = {"hi", "there"};
 };
 
+#ifdef _MSC_VER
+#define __PRETTY_FUNCTION__ __FUNCTION__
+#endif
+
 // Macros
 #define LOGTASK(level, Task, format, ...)                       \
 do                                                              \
 {                                                               \
     using namespace logging;                                    \
-static constexpr std::string_view function = __PRETTY_FUNCTION__; \
-    struct                                                      \
+    static constexpr std::string_view function = __PRETTY_FUNCTION__ ;\
+    struct MetaData                                             \
     {                                                           \
         constexpr LogMacroData operator()() const noexcept      \
         {                                                       \
             return LogMacroData{format, function, __FILE__, __LINE__};    \
         }                                                       \
-    } anonymous_meta_data;                                      \
+    };                                                          \
                                                                 \
-    logFunc<level, Task, decltype(anonymous_meta_data)>(__VA_ARGS__);  \
+    logFunc<level, Task, MetaData>(__VA_ARGS__);                \
 } while(false)                                                  \
 
 #define LOG(level, format, ...)  LOGTASK(level, logging::DefaultTask, format, __VA_ARGS__)
-
-#define LOGA(...) LOG(LogLevel::All,  __VA_ARGS__)
-#define LOGC(...) LOG(LogLevel::Critical,  __VA_ARGS__)
-#define LOGE(...) LOG(LogLevel::Error,  __VA_ARGS__)
-#define LOGW(...) LOG(LogLevel::Warning,  __VA_ARGS__)
-#define LOGI(...) LOG(LogLevel::Informational,  __VA_ARGS__)
-#define LOGD(...) LOG(LogLevel::Verbose,  __VA_ARGS__)
-
-// TODO add all of these
-#define LOGTASKI(...) LOGTASK(LogLevel::Informational,  __VA_ARGS__)
+#define LOGA(format, ...) LOG(LogLevel::All,  format, __VA_ARGS__)
+#define LOGC(format, ...) LOG(LogLevel::Critical,  format, __VA_ARGS__)
+#define LOGE(format, ...) LOG(LogLevel::Error,  format, __VA_ARGS__)
+#define LOGW(format, ...) LOG(LogLevel::Warning,  format, __VA_ARGS__)
+#define LOGI(format, ...) LOG(LogLevel::Informational,  format, __VA_ARGS__)
+#define LOGD(format, ...) LOG(LogLevel::Verbose,  format, __VA_ARGS__)
 
 } // namespace logging
 
