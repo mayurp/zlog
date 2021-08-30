@@ -9,6 +9,7 @@
 #include <string_view>
 #include <string>
 #include <iostream>
+#include <fstream>
 #include <ostream>
 #include <sstream>
 
@@ -193,9 +194,23 @@ void testLogs()
 void testBareCtf()
 {
     std::cout << "---------------------\n";
-    std::cout << logging::generateCtfMetaData();
+    const std::string metadata = logging::generateCtfMetaData();
+    std::cout << metadata;
     std::cout << "---------------------\n";
     
+    {
+        std::ofstream metaDataOfs("trace/metadata");
+        if (metaDataOfs.is_open())
+        {
+            metaDataOfs << metadata;
+        }
+        else
+        {
+            throw std::runtime_error("Unable to open file");
+            return;
+        }
+    }
+
     // Platform context
     struct barectf_platform_linux_fs_ctx *platform_ctx;
 
@@ -227,8 +242,12 @@ void testBareCtf()
 
     
     //static_assert(payload_size(1llu, "22") == 9);
-    logCtf(ctx, 0, uint32_t(22222222), uint32_t(777777), 23.0, s2);
-
+    //logCtf(ctx, 0, uint32_t(22222222), uint32_t(777777), 23.0, s2);
+    
+    LOGI("The message is {key1}", 23.f);
+    logCtf(ctx, 1007, 24.f);
+    
+    
     /* Finalize (free) the platform context */
     barectf_platform_linux_fs_fini(platform_ctx);
 }

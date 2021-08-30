@@ -119,6 +119,144 @@ std::string generateEventsYaml()
     return ss.str();
 }
 
+const char* ctfConfigDef()
+{
+    return R"(/* CTF 1.8 */
+trace {
+    major = 1;
+    minor = 8;
+    byte_order = le;
+    packet.header := struct {
+        integer {
+            signed = false;
+            size = 32;
+            align = 8;
+            byte_order = native;
+            base = 10;
+        } magic;
+        integer {
+            signed = false;
+            size = 64;
+            align = 8;
+            byte_order = native;
+            base = 10;
+        } stream_id;
+    } align(8);
+};
+
+env {
+    domain = "bare";
+    tracer_name = "barectf";
+    tracer_major = 3;
+    tracer_minor = 0;
+    tracer_patch = 1;
+    tracer_pre = "";
+    barectf_gen_date = "2021-08-28T20:56:22.074322";
+};
+
+clock {
+    name = default;
+    freq = 1000000000;
+    precision = 0;
+    offset_s = 0;
+    offset = 0;
+    absolute = false;
+};
+
+/* Data stream type `default` */
+stream {
+    id = 0;
+    packet.context := struct {
+        integer {
+            signed = false;
+            size = 64;
+            align = 8;
+            byte_order = native;
+            base = 10;
+        } packet_size;
+        integer {
+            signed = false;
+            size = 64;
+            align = 8;
+            byte_order = native;
+            base = 10;
+        } content_size;
+        integer {
+            signed = false;
+            size = 64;
+            align = 8;
+            byte_order = native;
+            base = 10;
+            map = clock.default.value;
+        } timestamp_begin;
+        integer {
+            signed = false;
+            size = 64;
+            align = 8;
+            byte_order = native;
+            base = 10;
+            map = clock.default.value;
+        } timestamp_end;
+        integer {
+            signed = false;
+            size = 64;
+            align = 8;
+            byte_order = native;
+            base = 10;
+        } events_discarded;
+    } align(8);
+    event.header := struct {
+        integer {
+            signed = false;
+            size = 64;
+            align = 8;
+            byte_order = native;
+            base = 10;
+        } id;
+        integer {
+            signed = false;
+            size = 64;
+            align = 8;
+            byte_order = native;
+            base = 10;
+            map = clock.default.value;
+        } timestamp;
+    } align(8);
+};
+    )";
+}
+
+const char* ctfBasicTypes()
+{
+    return R"(
+typealias integer {
+    signed = false;
+    size = 32;
+    byte_order = native;
+    base = 10;
+    align = 1;
+} := uint32;
+
+typealias floating_point {
+    exp_dig = 8;
+    mant_dig = 24;
+    byte_order = native;
+    align = 1;
+} := float;
+
+typealias floating_point {
+    exp_dig = 11;
+    mant_dig = 53;
+    byte_order = native;
+    align = 1;
+} := double;
+
+typealias string {
+    encoding = UTF8;
+} := utf8_string;
+    )";
+}
+
 std::string generateCtfMetaData()
 {
     CONTEXT();
@@ -132,7 +270,10 @@ std::string generateCtfMetaData()
     }
 
     std::ostringstream ss;
-    ss << "Tasks:\n";
+
+    ss << ctfConfigDef() << "\n";
+    ss << ctfBasicTypes() << "\n";
+
     for (const auto& entry : perTaskEvents)
     {
         const int taskId = entry.first;
@@ -140,23 +281,27 @@ std::string generateCtfMetaData()
         CHECK_LOGIC(!events.empty());
         for (const auto& metaData : events)
         {
+            if (metaData.eventId != 1007)
+                continue;
+
             const auto& macroData = metaData.macroData;
             ss << "event {\n";
-            ss << "    stream_id = 0\n";
-            ss << "    id = " << metaData.eventId  << "\n";
-            ss << "    name = \"" << metaData.eventName << "\"\n";
-            ss << "    loglevel = " << static_cast<int>(metaData.level) << "\n";
-            ss << "    msg = \"" << macroData.format << "\"\n";
+            ss << "    stream_id = 0;\n";
+            ss << "    id = " << metaData.eventId  << ";\n";
+            ss << "    name = \"" << metaData.eventName << "\";\n";
+            ss << "    loglevel = " << static_cast<int>(metaData.level) << ";\n";
+            ss << "    msg = \"" << macroData.format << "\";\n";
             // TODO: add to common meta data?
-            ss << "    file = \"" << macroData.file << "\"\n";
-            ss << "    line = " << macroData.line << "\n";
-            ss << "    function = \"" << macroData.function << "\"\n";
+            ss << "    file = \"" << macroData.file << "\";\n";
+            ss << "    line = " << macroData.line << ";\n";
+            ss << "    function = \"" << macroData.function << "\";\n";
             ss << "    fields := struct {\n";
             for (int i = 0; i < metaData.fieldNames.size(); ++i)
             {
-                ss << "TODO\n";
+                ss << "        " << metaData.fieldTypes[i] << " " << metaData.fieldNames[i] << ";\n";
             }
-            ss << "} align(1);\n\n";
+            ss << "    } align(1);\n";
+            ss << "};\n";
         }
 
     }
