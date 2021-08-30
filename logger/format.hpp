@@ -27,15 +27,29 @@ struct FixedString
 //    2. Strip out arg names so make it compatible with fmt
 //       example: "Some message: {argName}"  -> "Some message: {}"
 //
-// TODO: handle escaped braces
 template <std::string_view const& Format>
 struct ParseFormatString
 {
 private:
+    // Just count unescaped open brackets
+    // parse function does error handling
     static constexpr size_t countArgs(const std::string_view& str)
     {
         size_t count = 0;
-        for (char c : str) if (c == '{') ++count;
+        auto it = str.begin();
+        while (it != str.end())
+        {
+            const char ch = *it++;
+            if (ch == '{')
+            {
+                if (it != str.end() && *it == '{')
+                {
+                    ++it;
+                    continue;
+                }
+                ++count;
+            }
+        }
         return count;
     }
 
@@ -68,6 +82,14 @@ private:
             }
             if (ch == '{')
             {
+                if (it != format.end() && *it == '{')
+                {
+                    strippedFormat.data[dst++] = ch;
+                    strippedFormat.data[dst++] = *it;
+                    ++it;
+                    continue;
+                }
+
                 const size_t pos = it - format.begin();
                 const size_t end_brace_pos = format.find('}', pos);
                 if (end_brace_pos == std::string_view::npos)
@@ -75,8 +97,8 @@ private:
                 const size_t argLen = end_brace_pos - pos;
                 if (argLen < 1)
                     throw std::runtime_error("must specify an arg name");
-                const std::string_view argStr(it, argLen);
-                const std::string_view argName = getArgName(std::string_view(&(*it), argLen));
+                const std::string_view argStr(&(*it), argLen);
+                const std::string_view argName = getArgName(argStr);
                 const std::string_view argFormatting = argStr.substr(argName.size());
                 argNames[argIndex++] = argName;
                 strippedFormat.data[dst++] = '{';
@@ -87,7 +109,17 @@ private:
                 continue;
             }
             if (ch == '}')
+            {
+                if (it != format.end() && *it == '}')
+                {
+                    strippedFormat.data[dst++] = ch;
+                    strippedFormat.data[dst++] = *it;
+                    ++it;
+                    continue;
+                }
+
                 throw std::runtime_error("unmatched '}' in format string");
+            }
         }
         strippedFormat.size = dst;
 
