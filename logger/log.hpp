@@ -91,7 +91,7 @@ struct MetaDataNode
         data.eventId = eventId;
         data.eventName = funcName(macroData.function);
         static constexpr std::string_view taskName = className(macroData.function);
-        data.taskId = task_id<Task>;
+        data.taskId = -1;// task_id<Task>; // TODO: fix. Doesn't make sense since this we're ignore Task type
         data.taskName = taskName;//type_name<Task>();
         data.level = level;
         data.macroData = macroData;
@@ -163,6 +163,13 @@ do                                                              \
 #define LOGW(format, ...) LOG(LogLevel::Warning,  format, __VA_ARGS__)
 #define LOGI(format, ...) LOG(LogLevel::Informational,  format, __VA_ARGS__)
 #define LOGD(format, ...) LOG(LogLevel::Verbose,  format, __VA_ARGS__)
+
+#define LOGTASKA(Task, format, ...) LOGTASK(LogLevel::All, Task, format, __VA_ARGS__)
+#define LOGTASKC(Task, format, ...) LOGTASK(LogLevel::Critical, Task,  format, __VA_ARGS__)
+#define LOGTASKE(Task, format, ...) LOGTASK(LogLevel::Error, Task, format, __VA_ARGS__)
+#define LOGTASKW(Task, format, ...) LOGTASK(LogLevel::Warning, Task, format, __VA_ARGS__)
+#define LOGTASKI(Task, format, ...) LOGTASK(LogLevel::Informational, Task, format, __VA_ARGS__)
+#define LOGTASKD(Task, format, ...) LOGTASK(LogLevel::Verbose, Task, format, __VA_ARGS__)
 
 } // namespace logging
 
