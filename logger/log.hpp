@@ -52,6 +52,7 @@ namespace logging
 struct LogMacroData
 {
     std::string_view format;
+    std::string_view function;
     std::string_view file;
     int32_t line;
 };
@@ -59,6 +60,7 @@ struct LogMacroData
 struct LogMetaData
 {
     int eventId;
+    std::string_view eventName;
     int taskId;
     std::string_view taskName;
     LogLevel level;
@@ -87,8 +89,10 @@ struct MetaDataNode
         static constexpr LogMacroData macroData = MacroData{}();
         LogMetaData data;
         data.eventId = eventId;
+        data.eventName = funcName(macroData.function);
+        static constexpr std::string_view taskName = className(macroData.function);
         data.taskId = task_id<Task>;
-        data.taskName = type_name<Task>();
+        data.taskName = taskName;//type_name<Task>();
         data.level = level;
         data.macroData = macroData;
         
@@ -136,11 +140,12 @@ struct DefaultTask
 do                                                              \
 {                                                               \
     using namespace logging;                                    \
+static constexpr std::string_view function = __PRETTY_FUNCTION__; \
     struct                                                      \
     {                                                           \
         constexpr LogMacroData operator()() const noexcept      \
         {                                                       \
-            return LogMacroData{format, __FILE__, __LINE__};    \
+            return LogMacroData{format, function, __FILE__, __LINE__};    \
         }                                                       \
     } anonymous_meta_data;                                      \
                                                                 \
