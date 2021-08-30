@@ -244,8 +244,8 @@ void testBareCtf()
     //static_assert(payload_size(1llu, "22") == 9);
     //logCtf(ctx, 0, uint32_t(22222222), uint32_t(777777), 23.0, s2);
     
-    LOGI("The message is {key1}", 23.f);
-    logCtf(ctx, 1007, 24.f);
+    LOGI("The message is {key1}, {key2}", 23.f, 12u);
+    logCtf(ctx, 1007, 24.f, 12u);
     
     
     /* Finalize (free) the platform context */

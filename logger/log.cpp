@@ -235,7 +235,7 @@ typealias integer {
     byte_order = native;
     base = 10;
     align = 1;
-} := uint32;
+} := uint32_t;
 
 typealias floating_point {
     exp_dig = 8;

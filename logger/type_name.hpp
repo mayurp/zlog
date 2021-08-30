@@ -42,6 +42,18 @@ public:
 template<typename T>
 inline constexpr auto type_name_v = type_name<T>::value;
 
+#define TYPE_NAME(T)\
+template<>          \
+struct type_name<T> \
+{                   \
+    using value_type = std::string_view;      \
+    static constexpr value_type value{ #T }; \
+    constexpr operator value_type() const noexcept { return value; }  \
+    constexpr value_type operator()() const noexcept { return value; }\
+};\
+
+TYPE_NAME(uint32_t)
+
 
 constexpr std::string_view className(const std::string_view& prettyFuntion)
 {
