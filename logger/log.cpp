@@ -119,5 +119,50 @@ std::string generateEventsYaml()
     return ss.str();
 }
 
+std::string generateCtfMetaData()
+{
+    CONTEXT();
+
+    // TODO group events by task
+    std::map<int, std::vector<logging::LogMetaData>> perTaskEvents;
+
+    for (const auto& metaData : logging::getRegistry())
+    {
+        perTaskEvents[metaData.taskId].push_back(metaData);
+    }
+
+    std::ostringstream ss;
+    ss << "Tasks:\n";
+    for (const auto& entry : perTaskEvents)
+    {
+        const int taskId = entry.first;
+        const auto& events = entry.second;
+        CHECK_LOGIC(!events.empty());
+        for (const auto& metaData : events)
+        {
+            const auto& macroData = metaData.macroData;
+            ss << "event {\n";
+            ss << "    stream_id = 0\n";
+            ss << "    id = " << metaData.eventId  << "\n";
+            ss << "    name = \"" << metaData.eventName << "\"\n";
+            ss << "    loglevel = " << static_cast<int>(metaData.level) << "\n";
+            ss << "    msg = \"" << macroData.format << "\"\n";
+            // TODO: add to common meta data?
+            ss << "    file = \"" << macroData.file << "\"\n";
+            ss << "    line = " << macroData.line << "\n";
+            ss << "    function = \"" << macroData.function << "\"\n";
+            ss << "    fields := struct {\n";
+            for (int i = 0; i < metaData.fieldNames.size(); ++i)
+            {
+                ss << "TODO\n";
+            }
+            ss << "} align(1);\n\n";
+        }
+
+    }
+    return ss.str();
+}
+
+
 
 }

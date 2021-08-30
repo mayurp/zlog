@@ -77,6 +77,7 @@ EXPORT std::vector<LogMetaData>& getRegistry();
 EXPORT void addToRegistry(const LogMetaData& data);
 EXPORT void addToVector(std::vector<std::string_view>& vec, const std::string_view& str);
 EXPORT std::string generateEventsYaml();
+EXPORT std::string generateCtfMetaData();
 
 template <LogLevel level, typename Task, typename MacroData, typename... Args>
 struct MetaDataNode

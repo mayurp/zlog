@@ -12,6 +12,9 @@
 #include <ostream>
 #include <sstream>
 
+#include "barectf/barectf-platform-linux-fs.h"
+#include "barectf/barectf.h"
+
 #define FMT_ENFORCE_COMPILE_STRING
 #include <fmt/format.h>
 #include "fmt_helpers.hpp"
@@ -187,20 +190,64 @@ void testLogs()
     std::cout << "\n------- testLogs --------\n";
 }
 
+void testBareCtf()
+{
+    std::cout << "---------------------\n";
+    std::cout << logging::generateCtfMetaData();
+    std::cout << "---------------------\n";
+    
+    // Platform context
+    struct barectf_platform_linux_fs_ctx *platform_ctx;
+
+    // barectf context
+    struct barectf_default_ctx *ctx;
+
+    /*
+     * Obtain a platform context.
+     *
+     * The platform is configured to write 512-byte packets to a data
+     * stream file within the `trace` directory.
+     */
+    platform_ctx = barectf_platform_linux_fs_init(512, "trace/stream",
+                                                  0, 0, 0);
+
+    // Obtain the barectf context from the platform context
+    ctx = barectf_platform_linux_fs_get_barectf_ctx(platform_ctx);
+
+    std::string s1 = "hello_s";
+    std::string_view s2 = "hello_sv";
+
+    // TODO make unit test
+    static_assert(payload_size(1llu, true) == 9*8);
+    std::cout << payload_size(1llu, true) << "\n";
+    std::cout << payload_size("hello") << "\n";
+    std::cout << payload_size(s1) << "\n";
+    std::cout << payload_size(s2) << "\n";
+    std::cout << payload_size(s1, 54.f, 64., s2) << "\n";
+
+    
+    //static_assert(payload_size(1llu, "22") == 9);
+    logCtf(ctx, 0, uint32_t(22222222), uint32_t(777777), 23.0, s2);
+
+    /* Finalize (free) the platform context */
+    barectf_platform_linux_fs_fini(platform_ctx);
+}
+
+
 int main()
 {
+/*
     std::cout << "main start\n";
-//    testLogRegistry();
-//    testEtw();
-//
-//    testReflection();
-//
+    testLogRegistry();
+    testEtw();
+    testReflection();
     testTypeRegistry();
-//
-//    testFormat();
-
+    testFormat();
     testLogs();
-
-    std::cout << "main end\n";
+*/
+    testBareCtf();
+    
     return 0;
 }
+
+
