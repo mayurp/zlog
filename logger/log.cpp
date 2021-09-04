@@ -251,9 +251,6 @@ typealias floating_point {
     align = 1;
 } := double;
 
-typealias string {
-    encoding = UTF8;
-} := utf8_string;
     )";
 }
 
@@ -281,26 +278,32 @@ std::string generateCtfMetaData()
         CHECK_LOGIC(!events.empty());
         for (const auto& metaData : events)
         {
-            if (metaData.eventId != 1007)
+            if (metaData.eventId < 1007)
                 continue;
 
             const auto& macroData = metaData.macroData;
             ss << "event {\n";
             ss << "    stream_id = 0;\n";
-            ss << "    id = " << metaData.eventId  << ";\n";
-            ss << "    name = \"" << metaData.eventName << "\";\n";
+            ss << "    id = " << metaData.eventId << ";\n";
+            ss << "    name = \"" << metaData.eventName << "_" << metaData.eventId << "\";\n";
             ss << "    loglevel = " << static_cast<int>(metaData.level) << ";\n";
             ss << "    msg = \"" << macroData.format << "\";\n";
             // TODO: add to common meta data?
-            ss << "    file = \"" << macroData.file << "\";\n";
-            ss << "    line = " << macroData.line << ";\n";
-            ss << "    function = \"" << macroData.function << "\";\n";
             ss << "    fields := struct {\n";
             for (int i = 0; i < metaData.fieldNames.size(); ++i)
             {
                 ss << "        " << metaData.fieldTypes[i] << " " << metaData.fieldNames[i] << ";\n";
             }
             ss << "    } align(1);\n";
+            ss << "};\n\n";
+            
+            // defined separately from event for some reason
+            // TODO: event name is identifier here so need to ensure it's unique somehow
+            ss << "callsite {\n";
+            ss << "    name = \"" << metaData.eventName << "_" << metaData.eventId << "\";\n";
+            ss << "    file = \"" << macroData.file << "\";\n";
+            ss << "    line = " << macroData.line << ";\n";
+            ss << "    func = \"" << macroData.function << "\";\n";
             ss << "};\n";
         }
 

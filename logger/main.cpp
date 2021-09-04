@@ -244,9 +244,11 @@ void testBareCtf()
     //static_assert(payload_size(1llu, "22") == 9);
     //logCtf(ctx, 0, uint32_t(22222222), uint32_t(777777), 23.0, s2);
     
-    LOGI("The message is {key1}, {key2}", 23.f, 12u);
-    logCtf(ctx, 1007, 24.f, 12u);
-    
+    LOGI("The message is {keyA}, {key2} and then {key3}", 24.f, 12u, s1);
+    logCtf(ctx, 1007, 24.f, 12u, s1);
+
+    LOGI("The message another ---------- message: {error}", s2);
+    logCtf(ctx, 1008, s2);
     
     /* Finalize (free) the platform context */
     barectf_platform_linux_fs_fini(platform_ctx);

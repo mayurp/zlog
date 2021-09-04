@@ -42,17 +42,24 @@ public:
 template<typename T>
 inline constexpr auto type_name_v = type_name<T>::value;
 
-#define TYPE_NAME(T)\
+#define STRIGIFY(X) #X
+
+#define TYPE_NAME_VALUE(TYPE, NAME)\
 template<>          \
-struct type_name<T> \
+struct type_name<TYPE> \
 {                   \
     using value_type = std::string_view;      \
-    static constexpr value_type value{ #T }; \
+    static constexpr value_type value{ NAME }; \
     constexpr operator value_type() const noexcept { return value; }  \
     constexpr value_type operator()() const noexcept { return value; }\
 };\
 
+#define TYPE_NAME(TYPE) TYPE_NAME_VALUE(TYPE, STRIGIFY(TYPE))
+
+
 TYPE_NAME(uint32_t)
+TYPE_NAME_VALUE(std::string, "string")
+TYPE_NAME_VALUE(std::string_view, "string")
 
 
 constexpr std::string_view className(const std::string_view& prettyFuntion)

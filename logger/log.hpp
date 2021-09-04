@@ -103,7 +103,7 @@ struct MetaDataNode
         for (const auto& v : argNames)
             addToVector(data.fieldNames, v);
 
-        (addToVector(data.fieldTypes, type_name<Args>()), ...);
+        (addToVector(data.fieldTypes, type_name_v<std::decay_t<Args>>), ...);
         
         for (const auto& k : Task::keywords)
             addToVector(data.keywords, k);
