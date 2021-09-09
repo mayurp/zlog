@@ -14,6 +14,7 @@
 #include <tuple>
 #include <vector>
 #include "reflection.hpp"
+#include "barectf/logger.hpp"
 
 
 //#include <catch2/catch.hpp>
@@ -55,3 +56,13 @@ void testEtw()
     std::cout << "Stop etw log\n";
 }
 
+
+// TODO make unit test
+static_assert(barectf::payload_size(1llu, true) == 9);
+/*
+std::cout << barectf::payload_size(1llu, true) << "\n";
+std::cout << barectf::payload_size("hello") << "\n";
+std::cout << barectf::payload_size(s1) << "\n";
+std::cout << barectf::payload_size(s2) << "\n";
+std::cout << barectf::payload_size(s1, 54.f, 64., s2) << "\n";
+*/

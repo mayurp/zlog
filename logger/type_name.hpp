@@ -60,6 +60,9 @@ struct type_name<TYPE> \
 TYPE_NAME(uint32_t)
 TYPE_NAME_VALUE(std::string, "string")
 TYPE_NAME_VALUE(std::string_view, "string")
+TYPE_NAME_VALUE(char*, "string")
+TYPE_NAME_VALUE(const char*, "string")
+TYPE_NAME_VALUE(int, "int64_t")
 
 
 constexpr std::string_view className(const std::string_view& prettyFuntion)

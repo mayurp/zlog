@@ -9,6 +9,7 @@
 #define log_hpp
 
 //#include "etw.hpp"
+#include "barectf/logger.hpp"
 #include "format.hpp"
 #include "type_name.hpp"
 #include <array>
@@ -125,6 +126,8 @@ void logFunc(Args&&... args)
     static constexpr std::string_view format = MacroData{}().format;
     static constexpr std::string_view parsedFormat = ParseFormatString<format>::format;
     //logEtw(std::forward<Args>(args)...);
+    if constexpr (level == LogLevel::Verbose)
+        barectf::logEvent(eventId, std::forward<Args>(args)...);
     if constexpr (level <= LogLevel::Informational)
         console << fmt::format(FMT_STRING(parsedFormat), std::forward<Args>(args)...) << "\n";
 }

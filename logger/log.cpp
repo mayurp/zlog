@@ -237,6 +237,14 @@ typealias integer {
     align = 1;
 } := uint32_t;
 
+typealias integer {
+    signed = false;
+    size = 32;
+    byte_order = native;
+    base = 10;
+    align = 1;
+} := int64_t;
+    
 typealias floating_point {
     exp_dig = 8;
     mant_dig = 24;
@@ -304,7 +312,7 @@ std::string generateCtfMetaData()
             ss << "    file = \"" << macroData.file << "\";\n";
             ss << "    line = " << macroData.line << ";\n";
             ss << "    func = \"" << macroData.function << "\";\n";
-            ss << "};\n";
+            ss << "};\n\n";
         }
 
     }

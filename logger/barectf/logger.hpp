@@ -10,20 +10,38 @@
 
 
 #include "barectf.h"
+#include <string>
 #include <type_traits>
 
 
-size_t arg_size(const std::string& str)
+struct barectf_platform_linux_fs_ctx;
+struct barectf_default_ctx;
+
+namespace barectf
+{
+
+struct ScopedContext
+{
+    ScopedContext();
+    ~ScopedContext();
+
+    barectf_platform_linux_fs_ctx* platform_ctx;
+};
+
+barectf_default_ctx* get_context();
+
+
+inline size_t arg_size(const std::string& str)
 {
     return str.length() + 1;
 }
 
-size_t arg_size(const std::string_view& str)
+inline size_t arg_size(const std::string_view& str)
 {
     return str.length() + 1;
 }
 
-size_t arg_size(const char* str)
+inline size_t arg_size(const char* str)
 {
     return strlen(str) + 1;
 }
@@ -42,14 +60,14 @@ constexpr size_t payload_size(Args&&... args)
     return (arg_size(std::forward<Args>(args)) + ...);
 }
 
-void serialize_arg(uint8_t*& buf, const char* arg)
+inline void serialize_arg(uint8_t*& buf, const char* arg)
 {
     const size_t size = strlen(arg) + 1;
     memcpy(buf, arg, size);
     buf += size;
 }
 
-void serialize_arg(uint8_t*& buf, const std::string& arg)
+inline void serialize_arg(uint8_t*& buf, const std::string& arg)
 {
     memcpy(buf, arg.data(), arg.length());
     buf += arg.length();
@@ -57,7 +75,7 @@ void serialize_arg(uint8_t*& buf, const std::string& arg)
     buf += 1;
 }
 
-void serialize_arg(uint8_t*& buf, const std::string_view& arg)
+inline void serialize_arg(uint8_t*& buf, const std::string_view& arg)
 {
     memcpy(buf, arg.data(), arg.length());
     buf += arg.length();
@@ -84,8 +102,13 @@ void serialize_args(uint8_t*& buf, Arg1&& arg1, Args&&... args)
 
 // templated helpers
 template <typename... Args>
-void logCtf(struct barectf_default_ctx *sctx, uint32_t event_id, Args&&... args)
+void logEvent(uint32_t event_id, Args&&... args)
 {
+    // Get context for current thread
+    barectf_default_ctx* sctx = get_context();
+    if (!sctx)
+        throw std::logic_error("barectf not initialised on this thread");
+
     barectf_ctx* const ctx = &sctx->parent;
     
     /* Save timestamp */
@@ -131,6 +154,8 @@ void logCtf(struct barectf_default_ctx *sctx, uint32_t event_id, Args&&... args)
 
     /* Not tracing anymore */
     ctx->in_tracing_section = 0;
+}
+
 }
 
 #endif /* logger_hpp */
