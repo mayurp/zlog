@@ -14,7 +14,7 @@
 #include <sstream>
 
 #include "barectf/barectf-platform-linux-fs.h"
-#include "barectf/barectf.h"
+#include "barectf/logger.hpp"
 
 #define FMT_ENFORCE_COMPILE_STRING
 #include <fmt/format.h>

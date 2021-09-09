@@ -38,6 +38,15 @@
 #include "barectf.h"
 
 
+#ifdef __cplusplus
+# define _TO_VOID_PTR(_value)        static_cast<void *>(_value)
+# define _FROM_VOID_PTR(_type, _value)    static_cast<_type *>(_value)
+#else
+# define _TO_VOID_PTR(_value)        ((void *) (_value))
+# define _FROM_VOID_PTR(_type, _value)    ((_type *) (_value))
+#endif
+
+
 union _f2u {
 	float f;
 	uint32_t u;
@@ -134,16 +143,7 @@ void barectf_enable_tracing(void * const vctx, const int enable)
 	_FROM_VOID_PTR(struct barectf_ctx, vctx)->is_tracing_enabled = enable;
 }
 
-static
-void _write_c_str(struct barectf_ctx * const ctx, const char * const src)
-{
-	const uint32_t sz = strlen(src) + 1;
-
-	memcpy(&ctx->buf[_BITS_TO_BYTES(ctx->at)], src, sz);
-	ctx->at += _BYTES_TO_BITS(sz);
-}
-
-int reserve_er_space(void * const vctx, const uint32_t er_size)
+int barectf_reserve_er_space(void * const vctx, const uint32_t er_size)
 {
 	int ret;
 	struct barectf_ctx * const ctx = _FROM_VOID_PTR(struct barectf_ctx, vctx);
@@ -198,7 +198,7 @@ end:
 	return ret;
 }
 
-void commit_er(void * const vctx)
+void barectf_commit_er(void * const vctx)
 {
 	struct barectf_ctx * const ctx = _FROM_VOID_PTR(struct barectf_ctx, vctx);
 
@@ -445,7 +445,7 @@ end:
 	return;
 }
 
-void serialize_er_header_default(void * const vctx,
+void barectf_serialize_er_header_default(void * const vctx,
 	const uint32_t ert_id)
 {
 	struct barectf_ctx * const ctx = _FROM_VOID_PTR(struct barectf_ctx, vctx);
@@ -481,33 +481,6 @@ void serialize_er_header_default(void * const vctx,
 	}
 }
 
-// TODO: remove:
-void _serialize_er_default_one_integer(void * const vctx,
-	const int32_t p_the_integer)
-{
-	struct barectf_ctx * const ctx = _FROM_VOID_PTR(struct barectf_ctx, vctx);
-
-	/* Serialize header */
-	//serialize_er_header_default(ctx, 0);
-
-	/* Write payload structure */
-	{
-		/* Align for payload structure */
-		//_ALIGN(ctx->at, 32);
-
-		/* Align for `the_integer` field */
-		//_ALIGN(ctx->at, 32);
-
-		/* Write `the_integer` field */
-		{
-			const uint32_t tmp_val = (uint32_t) p_the_integer;
-
-			memcpy(&ctx->buf[_BITS_TO_BYTES(ctx->at)], &tmp_val, sizeof(tmp_val));
-			ctx->at += 32;
-		}
-	}
-}
-
 uint32_t barectf_size_default_header(void * const vctx)
 {
     struct barectf_ctx * const ctx = _FROM_VOID_PTR(struct barectf_ctx, vctx);
@@ -532,83 +505,4 @@ uint32_t barectf_size_default_header(void * const vctx)
     }
     
     return at - ctx->at;
-}
-
-// TODO: remove
-uint32_t _er_size_default_one_integer(void * const vctx)
-{
-	struct barectf_ctx * const ctx = _FROM_VOID_PTR(struct barectf_ctx, vctx);
-	uint32_t at = ctx->at;
-
-	/* Add header structure size */
-	{
-		/* Align for header structure */
-		_ALIGN(at, 8);
-
-		/* Align for `id` field */
-		_ALIGN(at, 8);
-
-		/* Add `id` bit array field's size */
-		at += 64;
-
-		/* Align for `timestamp` field */
-		_ALIGN(at, 8);
-
-		/* Add `timestamp` bit array field's size */
-		at += 64;
-	}
-
-	/* Add payload structure size */
-	{
-		/* Align for payload structure */
-		_ALIGN(at, 32);
-
-		/* Align for `the_integer` field */
-		_ALIGN(at, 32);
-
-		/* Add `the_integer` bit array field's size */
-		at += 32;
-	}
-
-	return at - ctx->at;
-}
-
-/* Trace (data stream type `default`, event record type `one_integer`) */
-void barectf_default_trace_one_integer(struct barectf_default_ctx * const sctx,
-	const int32_t p_the_integer)
-{
-	struct barectf_ctx * const ctx = &sctx->parent;
-	uint32_t er_size;
-
-	/* Save timestamp */
-	sctx->cur_last_event_ts = ctx->cbs.default_clock_get_value(ctx->data);
-
-	if (!ctx->is_tracing_enabled) {
-		goto end;
-	}
-
-	/* We can alter the packet */
-	ctx->in_tracing_section = 1;
-
-	/* Compute event record size */
-	er_size = _er_size_default_one_integer(_TO_VOID_PTR(ctx));
-
-	/* Is there enough space to serialize? */
-	if (!reserve_er_space(_TO_VOID_PTR(ctx), er_size)) {
-		/* no: forget this */
-		ctx->in_tracing_section = 0;
-		return;
-	}
-
-	/* Serialize event record */
-	_serialize_er_default_one_integer(_TO_VOID_PTR(ctx), p_the_integer);
-
-	/* Commit event record */
-	commit_er(_TO_VOID_PTR(ctx));
-
-	/* Not tracing anymore */
-	ctx->in_tracing_section = 0;
-
-end:
-	return;
 }

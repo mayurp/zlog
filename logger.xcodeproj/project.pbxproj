@@ -34,6 +34,7 @@
 		77C7594E26DAF6260012C73A /* barectf-platform-linux-fs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "barectf-platform-linux-fs.c"; sourceTree = "<group>"; };
 		77C7594F26DAF6260012C73A /* barectf.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = barectf.c; sourceTree = "<group>"; };
 		77C7595026DAF6260012C73A /* barectf-platform-linux-fs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "barectf-platform-linux-fs.h"; sourceTree = "<group>"; };
+		77C7595D26EA63DC0012C73A /* logger.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = logger.hpp; sourceTree = "<group>"; };
 		77CE34C42627ABF400B70B56 /* logger */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = logger; sourceTree = BUILT_PRODUCTS_DIR; };
 		77CE34C72627ABF400B70B56 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		77CE34D02627ACAD00B70B56 /* reflection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = reflection.cpp; sourceTree = "<group>"; };
@@ -69,6 +70,7 @@
 				77C7594E26DAF6260012C73A /* barectf-platform-linux-fs.c */,
 				77C7594F26DAF6260012C73A /* barectf.c */,
 				77C7595026DAF6260012C73A /* barectf-platform-linux-fs.h */,
+				77C7595D26EA63DC0012C73A /* logger.hpp */,
 			);
 			path = barectf;
 			sourceTree = "<group>";

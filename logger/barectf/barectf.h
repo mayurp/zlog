@@ -148,192 +148,30 @@ void barectf_default_trace_one_integer(struct barectf_default_ctx *sctx,
 
 
 ///////////////////////////////////////////////////////
-// mayur - moved from .c
+
+// mayur: added some helpers to work out packet size and exposed
+uint32_t barectf_size_default_header(void * const vctx);
+
+int barectf_reserve_er_space(void * const vctx, const uint32_t er_size);
+
+void barectf_serialize_er_header_default(void * const vctx,
+                                 const uint32_t ert_id);
+
+void barectf_commit_er(void * const vctx);
+
+
+// mayur: - moved from .c
 
 #define _ALIGN(_at_var, _align)                        \
     do {                                \
         (_at_var) = ((_at_var) + ((_align) - 1)) & -(_align);    \
     } while (0)
 
-#ifdef __cplusplus
-# define _TO_VOID_PTR(_value)        static_cast<void *>(_value)
-# define _FROM_VOID_PTR(_type, _value)    static_cast<_type *>(_value)
-#else
-# define _TO_VOID_PTR(_value)        ((void *) (_value))
-# define _FROM_VOID_PTR(_type, _value)    ((_type *) (_value))
-#endif
 
 #define _BITS_TO_BYTES(_x)    ((_x) >> 3)
 #define _BYTES_TO_BITS(_x)    ((_x) << 3)
 
-// mayur added
-// Add some helpers to work out packet sizw
-uint32_t barectf_size_default_header(void * const vctx);
-
-int reserve_er_space(void * const vctx, const uint32_t er_size);
-
-void serialize_er_header_default(void * const vctx,
-                                 const uint32_t ert_id);
-
-void commit_er(void * const vctx);
-
-
-// TODO: remove
-uint32_t _er_size_default_one_integer(void * const vctx);
-
-// TODO: remove
-void _serialize_er_default_one_integer(void * const vctx,
-                                       const int32_t p_the_integer);
-
-
 #ifdef __cplusplus
-}
-#endif
-
-////////////////////////////////////////////////////////
-// mayur
-
-
-#ifdef __cplusplus
-
-#include <type_traits>
-
-// In bits
-uint32_t arg_size(const std::string& str)
-{
-    return 8 * (str.length() + 1);
-}
-
-uint32_t arg_size(const std::string_view& str)
-{
-    return 8 * (str.length() + 1);
-}
-
-uint32_t arg_size(const char* str)
-{
-    return 8 * (strlen(str) + 1);
-}
-
-template<typename T,
-typename = std::enable_if_t<std::is_arithmetic_v<std::remove_reference_t<T>>>
->
-constexpr uint32_t arg_size(T&& arg)
-{
-    return 8 * sizeof(arg);
-}
-                  
-template<typename... Args>
-constexpr uint32_t payload_size(Args&&... args)
-{
-    return (arg_size(std::forward<Args>(args)) + ...);
-}
-
-void serialize_arg(uint8_t*& buf, const char* arg)
-{
-    const size_t size = strlen(arg) + 1;
-    memcpy(buf, arg, size);
-    buf += size;
-}
-
-void serialize_arg(uint8_t*& buf, const std::string& arg)
-{
-    memcpy(buf, arg.data(), arg.length());
-    buf += arg.length();
-    *buf = '\0';
-    buf += 1;
-}
-
-void serialize_arg(uint8_t*& buf, const std::string_view& arg)
-{
-    memcpy(buf, arg.data(), arg.length());
-    buf += arg.length();
-    *buf = '\0';
-    buf += 1;
-}
-
-
-template<typename T,
-typename = std::enable_if_t<std::is_arithmetic_v<std::remove_reference_t<T>>>
->
-void serialize_arg(uint8_t*& buf, T&& arg)
-{
-    memcpy(buf, &arg, sizeof(arg));
-    buf += sizeof(arg);
-}
-
-template<typename Arg1, typename... Args>
-void serialize_args(uint8_t*& buf, Arg1&& arg1, Args&&... args)
-{
-    serialize_arg(buf, std::forward<Arg1>(arg1));
-    if constexpr (sizeof...(args) > 0)
-        serialize_args(buf, std::forward<Args>(args)...);
-}
-
-// templated helpers
-template <typename... Args>
-void logCtf(struct barectf_default_ctx *sctx, uint32_t event_id, Args&&... args)
-{
-    struct barectf_ctx * const ctx = &sctx->parent;
-    
-    /* Save timestamp */
-    sctx->cur_last_event_ts = ctx->cbs.default_clock_get_value(ctx->data);
-
-    // TODO check if this will be needed once log enabling is controlled from higher up in log.hpp
-    if (!ctx->is_tracing_enabled)
-    {
-        return;
-    }
-
-    /* We can alter the packet */
-    ctx->in_tracing_section = 1;
-    
-    // alignment done here can't be constexpr
-    const uint32_t er_header_size = barectf_size_default_header(_TO_VOID_PTR(ctx));
-    // no alignment here so can be constexpr except when strings or dynamic arrays are used
-    
-    
-    /* Adjust size Align for payload structure */
-    uint32_t at = ctx->at;
-    _ALIGN(at, 32);
-    uint32_t er_payload_alignment = at - ctx->at;
-    
-    // TODO: add alignment?
-    uint32_t er_payload_size = payload_size(std::forward<Args>(args)...);
-    
-    uint32_t packet_size = er_header_size + /*er_payload_alignment +*/ er_payload_size;
-    /* Is there enough space to serialize? */
-    if (!reserve_er_space(_TO_VOID_PTR(ctx), packet_size))
-    {
-        /* no: forget this */
-        ctx->in_tracing_section = 0;
-        return;
-    }
-
-    /* Serialize event record */
-
-    /* Serialize header */
-    serialize_er_header_default(ctx, event_id);
-
-    /* Write payload structure */
-    {
-        /* Align for payload structure */
-        //_ALIGN(ctx->at, 32);
-
-        uint8_t* start = ctx->buf + _BITS_TO_BYTES(ctx->at);
-        uint8_t* curr = start;
-        serialize_args(curr, std::forward<Args>(args)...);
-        const uint32_t bytes_written = curr - start;
-        ctx->at += bytes_written * 8;
-    }
-    
-    /* Serialize event record */
-    //_serialize_er_default_one_integer(_TO_VOID_PTR(ctx), 666666);
-    
-    /* Commit event record */
-    commit_er(_TO_VOID_PTR(ctx));
-
-    /* Not tracing anymore */
-    ctx->in_tracing_section = 0;
 }
 #endif
 
