@@ -38,6 +38,11 @@
 #include "barectf.h"
 
 
+#define _ALIGN(_at_var, _align)                                  \
+    do {                                                         \
+        (_at_var) = ((_at_var) + ((_align) - 1)) & -(_align);    \
+    } while (0)
+
 #ifdef __cplusplus
 # define _TO_VOID_PTR(_value)        static_cast<void *>(_value)
 # define _FROM_VOID_PTR(_type, _value)    static_cast<_type *>(_value)
@@ -46,16 +51,6 @@
 # define _FROM_VOID_PTR(_type, _value)    ((_type *) (_value))
 #endif
 
-
-union _f2u {
-	float f;
-	uint32_t u;
-};
-
-union _d2u {
-	double f;
-	uint64_t u;
-};
 
 uint32_t barectf_packet_size(const void * const vctx)
 {

@@ -142,16 +142,13 @@ void barectf_default_open_packet(
 /* Close packet for data stream type `default` */
 void barectf_default_close_packet(struct barectf_default_ctx *sctx);
 
-/* Trace (data stream type `default`, event record type `one_integer`) */
-void barectf_default_trace_one_integer(struct barectf_default_ctx *sctx,
-	int32_t p_the_integer);
-
-
 ///////////////////////////////////////////////////////
+// mayur:
 
-// mayur: added some helpers to work out packet size and exposed
+// Added this
 uint32_t barectf_size_default_header(void * const vctx);
 
+// Exposed these
 int barectf_reserve_er_space(void * const vctx, const uint32_t er_size);
 
 void barectf_serialize_er_header_default(void * const vctx,
@@ -159,15 +156,7 @@ void barectf_serialize_er_header_default(void * const vctx,
 
 void barectf_commit_er(void * const vctx);
 
-
-// mayur: - moved from .c
-
-#define _ALIGN(_at_var, _align)                        \
-    do {                                \
-        (_at_var) = ((_at_var) + ((_align) - 1)) & -(_align);    \
-    } while (0)
-
-
+// Moved from .c file
 #define _BITS_TO_BYTES(_x)    ((_x) >> 3)
 #define _BYTES_TO_BITS(_x)    ((_x) << 3)
 

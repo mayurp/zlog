@@ -101,8 +101,8 @@ void logCtf(struct barectf_default_ctx *sctx, uint32_t event_id, Args&&... args)
     ctx->in_tracing_section = 1;
     
     const uint32_t er_header_size = barectf_size_default_header(ctx);
-    const uint32_t er_payload_size = _BYTES_TO_BITS(payload_size(std::forward<Args>(args)...));
-    const uint32_t packet_size = er_header_size  /* *er_payload_alignment*/ + er_payload_size;
+    const uint32_t er_payload_size = uint32_t(_BYTES_TO_BITS(payload_size(std::forward<Args>(args)...)));
+    const uint32_t packet_size = er_header_size + er_payload_size;
     
     /* Is there enough space to serialize? */
     if (!barectf_reserve_er_space(ctx, packet_size))
@@ -119,7 +119,7 @@ void logCtf(struct barectf_default_ctx *sctx, uint32_t event_id, Args&&... args)
 
     /* Write payload structure */
     {
-        uint8_t* start = ctx->buf + _BITS_TO_BYTES(ctx->at);
+        uint8_t* const start = ctx->buf + _BITS_TO_BYTES(ctx->at);
         uint8_t* curr = start;
         serialize_args(curr, std::forward<Args>(args)...);
         const size_t bytes_written = curr - start;
