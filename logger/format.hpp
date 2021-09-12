@@ -11,16 +11,8 @@
 
 
 #include <string_view>
+#include "ctstring.hpp"
 
-
-// statically allocated string - not null terminated
-template <size_t N>
-struct FixedString
-{
-    constexpr std::string_view view() const { return { data, size }; }
-    char data[N];
-    size_t size = N; // default to entire buffer
-};
 
 // Compile time parsing of log format string to:
 //    1. Extract named arguments 

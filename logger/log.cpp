@@ -238,7 +238,7 @@ typealias integer {
 } := uint32_t;
 
 typealias integer {
-    signed = false;
+    signed = true;
     size = 32;
     byte_order = native;
     base = 10;
@@ -259,7 +259,30 @@ typealias floating_point {
     align = 1;
 } := double;
 
+typealias integer {
+    size = 8;
+    signed = true;
+    byte_order = native;
+    base = 10;
+    align = 1;
+} := bool;
+    
     )";
+}
+
+std::string ctfCustomTypes()
+{
+    std::ostringstream ss;
+    for (const auto& type: reflection::getTypeRegistry())
+    {
+        ss << "typealias struct {\n";
+        for (const auto& field: type.fields)
+        {
+            ss << "    " << field.typeName << " " << field.name << ";\n";
+        }
+        ss << "} := " << type.name << ";\n\n";
+    }
+    return ss.str();
 }
 
 std::string generateCtfMetaData()
@@ -278,6 +301,7 @@ std::string generateCtfMetaData()
 
     ss << ctfConfigDef() << "\n";
     ss << ctfBasicTypes() << "\n";
+    ss << ctfCustomTypes() << "\n";
 
     for (const auto& entry : perTaskEvents)
     {

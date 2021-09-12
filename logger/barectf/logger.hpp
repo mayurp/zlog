@@ -10,8 +10,11 @@
 
 
 #include "barectf.h"
+#include "../reflection.hpp"
+
 #include <string>
 #include <type_traits>
+
 
 
 struct barectf_platform_linux_fs_ctx;
@@ -47,13 +50,26 @@ inline size_t arg_size(const char* str)
 }
 
 template<typename T,
-typename = std::enable_if_t<std::is_arithmetic_v<std::remove_reference_t<T>>>
+    std::enable_if_t<std::is_arithmetic_v<std::remove_reference_t<T>>, bool> = true
 >
 constexpr size_t arg_size(T&& arg)
 {
     return sizeof(arg);
 }
-                  
+
+template<typename T,
+    std::enable_if_t<reflection::is_reflected_v<std::decay_t<T>>, bool> = true
+>
+constexpr size_t arg_size(T&& arg)
+{
+    size_t size = 0;
+    reflection::for_each(arg, [&](std::string_view member, const auto& value)
+    {
+        size += arg_size(value);
+    });
+    return size;
+}
+
 template<typename... Args>
 constexpr size_t payload_size(Args&&... args)
 {
@@ -84,12 +100,23 @@ inline void serialize_arg(uint8_t*& buf, const std::string_view& arg)
 }
 
 template<typename T,
-typename = std::enable_if_t<std::is_arithmetic_v<std::remove_reference_t<T>>>
+    std::enable_if_t<std::is_arithmetic_v<std::remove_reference_t<T>>, bool> = true
 >
 void serialize_arg(uint8_t*& buf, T&& arg)
 {
     memcpy(buf, &arg, sizeof(arg));
     buf += sizeof(arg);
+}
+
+template<typename T,
+    std::enable_if_t<reflection::is_reflected_v<std::decay_t<T>>, bool> = true
+>
+constexpr void serialize_arg(uint8_t*& buf, T&& arg)
+{
+    reflection::for_each(arg, [&](std::string_view member, const auto& value)
+    {
+        serialize_arg(buf, value);
+    });
 }
 
 template<typename Arg1, typename... Args>
