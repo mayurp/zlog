@@ -39,12 +39,11 @@ extern int ETWStartEventId;
 
 enum class LogLevel
 {
-    All = 0,
-    Critical = 1,
-    Error = 2,
-    Warning = 3,
-    Informational = 4,
-    Verbose = 5
+    Critical,
+    Error,
+    Warning,
+    Informational,
+    Debug,
 };
 
 namespace logging
@@ -126,8 +125,7 @@ void logFunc(Args&&... args)
     static constexpr std::string_view format = MacroData{}().format;
     static constexpr std::string_view parsedFormat = ParseFormatString<format>::format;
     //logEtw(std::forward<Args>(args)...);
-    if constexpr (level == LogLevel::Verbose)
-        barectf::logEvent(eventId, std::forward<Args>(args)...);
+    barectf::logEvent(eventId, std::forward<Args>(args)...);
     if constexpr (level <= LogLevel::Informational)
         console << fmt::format(FMT_STRING(parsedFormat), std::forward<Args>(args)...) << "\n";
 }
@@ -160,19 +158,17 @@ do                                                              \
 } while(false)                                                  \
 
 #define LOG(level, format, ...)  LOGTASK(level, logging::DefaultTask, format, __VA_ARGS__)
-#define LOGA(format, ...) LOG(LogLevel::All,  format, __VA_ARGS__)
 #define LOGC(format, ...) LOG(LogLevel::Critical,  format, __VA_ARGS__)
 #define LOGE(format, ...) LOG(LogLevel::Error,  format, __VA_ARGS__)
 #define LOGW(format, ...) LOG(LogLevel::Warning,  format, __VA_ARGS__)
 #define LOGI(format, ...) LOG(LogLevel::Informational,  format, __VA_ARGS__)
-#define LOGD(format, ...) LOG(LogLevel::Verbose,  format, __VA_ARGS__)
+#define LOGD(format, ...) LOG(LogLevel::Debug,  format, __VA_ARGS__)
 
-#define LOGTASKA(Task, format, ...) LOGTASK(LogLevel::All, Task, format, __VA_ARGS__)
 #define LOGTASKC(Task, format, ...) LOGTASK(LogLevel::Critical, Task,  format, __VA_ARGS__)
 #define LOGTASKE(Task, format, ...) LOGTASK(LogLevel::Error, Task, format, __VA_ARGS__)
 #define LOGTASKW(Task, format, ...) LOGTASK(LogLevel::Warning, Task, format, __VA_ARGS__)
 #define LOGTASKI(Task, format, ...) LOGTASK(LogLevel::Informational, Task, format, __VA_ARGS__)
-#define LOGTASKD(Task, format, ...) LOGTASK(LogLevel::Verbose, Task, format, __VA_ARGS__)
+#define LOGTASKD(Task, format, ...) LOGTASK(LogLevel::Debug, Task, format, __VA_ARGS__)
 
 } // namespace logging
 

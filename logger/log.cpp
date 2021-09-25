@@ -288,6 +288,30 @@ std::string ctfCustomTypes()
     return ss.str();
 }
 
+enum class LttngLogLevel
+{
+    TRACE_EMERG = 0,
+    TRACE_ALERT = 1,
+    TRACE_CRIT = 2,
+    TRACE_ERR = 3,
+    TRACE_WARNING = 4,
+    TRACE_NOTICE = 5,
+    TRACE_INFO = 6,
+    TRACE_DEBUG = 14
+};
+
+LttngLogLevel toLttngLogLevel(LogLevel level)
+{
+    switch (level)
+    {
+        case LogLevel::Critical: return LttngLogLevel::TRACE_CRIT;
+        case LogLevel::Error: return LttngLogLevel::TRACE_ERR;
+        case LogLevel::Warning: return LttngLogLevel::TRACE_WARNING;
+        case LogLevel::Informational: return LttngLogLevel::TRACE_INFO;
+        case LogLevel::Debug: return LttngLogLevel::TRACE_DEBUG;
+    }
+}
+
 std::string generateCtfMetaData()
 {
     CONTEXT();
@@ -321,7 +345,7 @@ std::string generateCtfMetaData()
             ss << "    stream_id = 0;\n";
             ss << "    id = " << metaData.eventId << ";\n";
             ss << "    name = \"" << metaData.eventName << "_" << metaData.eventId << "\";\n";
-            ss << "    loglevel = " << static_cast<int>(metaData.level) << ";\n";
+            ss << "    loglevel = " << static_cast<int>(toLttngLogLevel(metaData.level)) << ";\n";
             ss << "    msg = \"" << macroData.format << "\";\n";
             // TODO: add to common meta data?
             ss << "    fields := struct {\n";
