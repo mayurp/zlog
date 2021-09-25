@@ -17,11 +17,18 @@ namespace barectf
 {
 
 thread_local barectf_default_ctx* current_thread_context = nullptr;
-std::atomic_int thread_id = 0;
+thread_local uint32_t thread_id = 0;
+
+std::atomic_int thread_counter = 0;
 
 barectf_default_ctx* get_context()
 {
     return current_thread_context;
+}
+
+uint32_t get_threadid()
+{
+    return thread_id;
 }
 
 ScopedContext::ScopedContext()
@@ -31,7 +38,8 @@ ScopedContext::ScopedContext()
     
     // TODO: pass trace file path in separately
     std::ostringstream ss;
-    ss << "trace/stream_" << thread_id++;
+    thread_id = thread_counter++;
+    ss << "trace/stream_" << thread_id;
     platform_ctx = barectf_platform_linux_fs_init(512, ss.str().c_str(), 0, 0, 0);
     current_thread_context = barectf_platform_linux_fs_get_barectf_ctx(platform_ctx);
 }
