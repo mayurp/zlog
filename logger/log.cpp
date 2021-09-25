@@ -337,14 +337,20 @@ std::string generateCtfMetaData()
         CHECK_LOGIC(!events.empty());
         for (const auto& metaData : events)
         {
-            if (metaData.eventId < 1007)
+            if (metaData.macroData.line < 270)
                 continue;
 
+            // event name is identifier for callsite block so need to ensure it's
+            // unique by appending the eventId
+            std::ostringstream ns;
+            ns << metaData.eventName << "_" << metaData.eventId;
+            const std::string eventName = ns.str();
+            
             const auto& macroData = metaData.macroData;
             ss << "event {\n";
             ss << "    stream_id = 0;\n";
             ss << "    id = " << metaData.eventId << ";\n";
-            ss << "    name = \"" << metaData.eventName << "_" << metaData.eventId << "\";\n";
+            ss << "    name = \"" << eventName << "\";\n";
             ss << "    loglevel = " << static_cast<int>(toLttngLogLevel(metaData.level)) << ";\n";
             ss << "    msg = \"" << macroData.format << "\";\n";
             // TODO: add to common meta data?
@@ -357,9 +363,8 @@ std::string generateCtfMetaData()
             ss << "};\n\n";
             
             // defined separately from event for some reason
-            // TODO: event name is identifier here so need to ensure it's unique somehow
             ss << "callsite {\n";
-            ss << "    name = \"" << metaData.eventName << "_" << metaData.eventId << "\";\n";
+            ss << "    name = \"" << eventName << "\";\n";
             ss << "    file = \"" << macroData.file << "\";\n";
             ss << "    line = " << macroData.line << ";\n";
             ss << "    func = \"" << macroData.function << "\";\n";
