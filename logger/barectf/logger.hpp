@@ -167,15 +167,35 @@ void logEvent(uint32_t event_id, Args&&... args)
     /* Serialize header */
     barectf_serialize_er_header_default(ctx, event_id);
 
+    /* Serialize event context */
+    barectf_serialize_er_stream_event_context(ctx, get_threadid());
+    
     /* Write payload structure */
+    if constexpr (sizeof...(Args) > 0)
     {
         uint8_t* const start = ctx->buf + _BITS_TO_BYTES(ctx->at);
         uint8_t* curr = start;
+        
+        // Sanity check
+        //const uint32_t before = ctx->at;
+        
         serialize_args(curr, std::forward<Args>(args)...);
         const size_t bytes_written = curr - start;
+           
+        // Snaity check
+        //if (before != ctx->at)
+        //    throw std::logic_error("wrote");
+
         ctx->at += _BYTES_TO_BITS(bytes_written);
     }
-        
+    
+    // Sanity check
+    /*
+    uint32_t diff = ctx->at - begin;
+    if (diff != packet_size)
+        throw std::logic_error("incorrect number of btyes written for packet");
+    */
+
     /* Commit event record */
     barectf_commit_er(ctx);
 
