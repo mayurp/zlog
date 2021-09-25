@@ -501,3 +501,44 @@ uint32_t barectf_size_default_header(void * const vctx)
     
     return at - ctx->at;
 }
+
+void barectf_serialize_er_stream_event_context(void * const vctx, uint32_t thread_id)
+{
+    struct barectf_ctx * const ctx = _FROM_VOID_PTR(struct barectf_ctx, vctx);
+
+    /* Write header structure */
+    {
+        /* Align for event context structure */
+        _ALIGN(ctx->at, 8);
+
+        /* Align for `_vpid` field */
+        _ALIGN(ctx->at, 8);
+
+        /* Write event context _vpid field */
+        {
+            memcpy(&ctx->buf[_BITS_TO_BYTES(ctx->at)], &thread_id, sizeof(thread_id));
+            ctx->at += 32;
+        }
+    }
+}
+
+uint32_t barectf_size_stream_event_context(void * const vctx)
+{
+    struct barectf_ctx * const ctx = _FROM_VOID_PTR(struct barectf_ctx, vctx);
+    uint32_t at = ctx->at;
+
+    /* Add header structure size */
+    {
+        /* Align for event context structure */
+        _ALIGN(at, 8);
+
+        /* Align for `id` _vpid */
+        _ALIGN(at, 8);
+
+        /* Add `_vpid` bit array field's size */
+        at += 32;
+    }
+    
+    return at - ctx->at;
+}
+

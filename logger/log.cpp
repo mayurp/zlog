@@ -222,6 +222,9 @@ stream {
             map = clock.default.value;
         } timestamp;
     } align(8);
+    event.context := struct {
+        integer { size = 32; align = 8; signed = 1; encoding = none; base = 10; } _vtid;
+    } align(8);
 };
     )";
 }
