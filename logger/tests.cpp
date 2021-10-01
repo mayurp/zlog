@@ -14,7 +14,7 @@
 #include <tuple>
 #include <vector>
 #include "reflection.hpp"
-#include "barectf/logger.hpp"
+#include "ctf/ctf_logger.hpp"
 
 
 //#include <catch2/catch.hpp>

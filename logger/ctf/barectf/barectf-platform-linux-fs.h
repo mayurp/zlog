@@ -28,6 +28,10 @@
 
 #include <stdint.h>
 
+#ifndef NO_INSTRUMENT
+    #define NO_INSTRUMENT //__attribute__((no_instrument_function))
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -35,13 +39,16 @@ extern "C" {
 struct barectf_default_ctx;
 struct barectf_platform_linux_fs_ctx;
 
+NO_INSTRUMENT
 struct barectf_platform_linux_fs_ctx *barectf_platform_linux_fs_init(
 	unsigned int buf_size, const char *data_stream_file_path,
 	int simulate_full_backend, unsigned int full_backend_rand_max,
 	unsigned int full_backend_rand_lt);
 
+NO_INSTRUMENT
 void barectf_platform_linux_fs_fini(struct barectf_platform_linux_fs_ctx *ctx);
 
+NO_INSTRUMENT
 struct barectf_default_ctx *barectf_platform_linux_fs_get_barectf_ctx(
 	struct barectf_platform_linux_fs_ctx *ctx);
 

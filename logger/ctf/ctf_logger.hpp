@@ -12,38 +12,71 @@
 #include "barectf.h"
 #include "../reflection.hpp"
 
+#include <filesystem>
 #include <string>
 #include <type_traits>
 
+#include <iostream>
 
 
 struct barectf_platform_linux_fs_ctx;
 struct barectf_default_ctx;
 
+#ifndef NO_INSTRUMENT
+    #define NO_INSTRUMENT __attribute__((no_instrument_function))
+#endif
+
 namespace barectf
 {
 
-struct ScopedContext
+// session for entire application
+struct Session
 {
-    ScopedContext();
-    ~ScopedContext();
+    NO_INSTRUMENT
+    Session(const std::filesystem::path& _trace_dir);
 
-    barectf_platform_linux_fs_ctx* platform_ctx;
+    NO_INSTRUMENT
+    static Session& get_default_session();
+    
+    std::filesystem::path trace_dir;
 };
 
-barectf_default_ctx* get_context();
+// RAII wrapper for barectf
+struct Context
+{
+    NO_INSTRUMENT
+    Context(const Session& session);
+    
+    NO_INSTRUMENT
+    ~Context();
+  
+    // Get default barectf context of current thread
+    NO_INSTRUMENT
+    static barectf_default_ctx* get_default_context();
 
+private:
+    barectf_platform_linux_fs_ctx* platform_ctx = nullptr;
+    barectf_default_ctx* ctx = nullptr;
+};
 
+// Get sequential thread id used in logs
+NO_INSTRUMENT
+uint32_t get_threadid();
+
+// Helpers to for binary serialisation
+NO_INSTRUMENT
 inline size_t arg_size(const std::string& str)
 {
     return str.length() + 1;
 }
 
+NO_INSTRUMENT
 inline size_t arg_size(const std::string_view& str)
 {
     return str.length() + 1;
 }
 
+NO_INSTRUMENT
 inline size_t arg_size(const char* str)
 {
     return strlen(str) + 1;
@@ -52,6 +85,7 @@ inline size_t arg_size(const char* str)
 template<typename T,
     std::enable_if_t<std::is_arithmetic_v<std::remove_reference_t<T>>, bool> = true
 >
+NO_INSTRUMENT
 constexpr size_t arg_size(T&& arg)
 {
     return sizeof(arg);
@@ -60,6 +94,7 @@ constexpr size_t arg_size(T&& arg)
 template<typename T,
     std::enable_if_t<reflection::is_reflected_v<std::decay_t<T>>, bool> = true
 >
+NO_INSTRUMENT
 constexpr size_t arg_size(T&& arg)
 {
     size_t size = 0;
@@ -71,11 +106,16 @@ constexpr size_t arg_size(T&& arg)
 }
 
 template<typename... Args>
-constexpr size_t payload_size(Args&&... args)
+NO_INSTRUMENT
+inline constexpr size_t payload_size(Args&&... args)
 {
-    return (arg_size(std::forward<Args>(args)) + ...);
+    if constexpr (sizeof...(Args) == 0)
+        return 0;
+    else
+        return (arg_size(std::forward<Args>(args)) + ...);
 }
 
+NO_INSTRUMENT
 inline void serialize_arg(uint8_t*& buf, const char* arg)
 {
     const size_t size = strlen(arg) + 1;
@@ -83,6 +123,7 @@ inline void serialize_arg(uint8_t*& buf, const char* arg)
     buf += size;
 }
 
+NO_INSTRUMENT
 inline void serialize_arg(uint8_t*& buf, const std::string& arg)
 {
     memcpy(buf, arg.data(), arg.length());
@@ -91,6 +132,7 @@ inline void serialize_arg(uint8_t*& buf, const std::string& arg)
     buf += 1;
 }
 
+NO_INSTRUMENT
 inline void serialize_arg(uint8_t*& buf, const std::string_view& arg)
 {
     memcpy(buf, arg.data(), arg.length());
@@ -102,7 +144,8 @@ inline void serialize_arg(uint8_t*& buf, const std::string_view& arg)
 template<typename T,
     std::enable_if_t<std::is_arithmetic_v<std::remove_reference_t<T>>, bool> = true
 >
-void serialize_arg(uint8_t*& buf, T&& arg)
+NO_INSTRUMENT
+inline void serialize_arg(uint8_t*& buf, T&& arg)
 {
     memcpy(buf, &arg, sizeof(arg));
     buf += sizeof(arg);
@@ -111,7 +154,8 @@ void serialize_arg(uint8_t*& buf, T&& arg)
 template<typename T,
     std::enable_if_t<reflection::is_reflected_v<std::decay_t<T>>, bool> = true
 >
-constexpr void serialize_arg(uint8_t*& buf, T&& arg)
+NO_INSTRUMENT
+inline constexpr void serialize_arg(uint8_t*& buf, T&& arg)
 {
     reflection::for_each(arg, [&](std::string_view member, const auto& value)
     {
@@ -120,29 +164,37 @@ constexpr void serialize_arg(uint8_t*& buf, T&& arg)
 }
 
 template<typename Arg1, typename... Args>
-void serialize_args(uint8_t*& buf, Arg1&& arg1, Args&&... args)
+NO_INSTRUMENT
+inline void serialize_args(uint8_t*& buf, Arg1&& arg1, Args&&... args)
 {
     serialize_arg(buf, std::forward<Arg1>(arg1));
     if constexpr (sizeof...(args) > 0)
         serialize_args(buf, std::forward<Args>(args)...);
 }
 
-// templated helpers
+// Write barectf packet
 template <typename... Args>
-void logEvent(uint32_t event_id, Args&&... args)
+NO_INSTRUMENT
+void log_event(uint32_t event_id, Args&&... args)
 {
     // Get context for current thread
-    barectf_default_ctx* sctx = get_context();
+    barectf_default_ctx* sctx = Context::get_default_context();
     if (!sctx)
         throw std::logic_error("barectf not initialised on this thread");
 
     barectf_ctx* const ctx = &sctx->parent;
+     
+    if (ctx->in_tracing_section)
+    {
+        // prevent recursion when using cyg_profile hooks
+        return;
+    }
     
     /* Save timestamp */
     sctx->cur_last_event_ts = ctx->cbs.default_clock_get_value(ctx->data);
 
     // TODO: check if this will be needed once log enabling is controlled from higher up in log.hpp
-    if (!ctx->is_tracing_enabled)
+    if (!ctx->is_tracing_enabled )
     {
         return;
     }
@@ -152,7 +204,8 @@ void logEvent(uint32_t event_id, Args&&... args)
     
     const uint32_t er_header_size = barectf_size_default_header(ctx);
     const uint32_t er_payload_size = uint32_t(_BYTES_TO_BITS(payload_size(std::forward<Args>(args)...)));
-    const uint32_t packet_size = er_header_size + er_payload_size;
+    const uint32_t er_event_ctx_size = barectf_size_stream_event_context(ctx);
+    const uint32_t packet_size = er_header_size + er_payload_size + er_event_ctx_size;
     
     /* Is there enough space to serialize? */
     if (!barectf_reserve_er_space(ctx, packet_size))
@@ -184,7 +237,7 @@ void logEvent(uint32_t event_id, Args&&... args)
            
         // Snaity check
         //if (before != ctx->at)
-        //    throw std::logic_error("wrote");
+        //    throw std::logic_error("ctx->at should not have changed");
 
         ctx->at += _BYTES_TO_BITS(bytes_written);
     }

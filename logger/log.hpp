@@ -9,7 +9,7 @@
 #define log_hpp
 
 //#include "etw.hpp"
-#include "barectf/logger.hpp"
+#include "ctf/ctf_logger.hpp"
 #include "format.hpp"
 #include "type_name.hpp"
 #include <array>
@@ -79,7 +79,7 @@ EXPORT std::vector<LogMetaData>& getRegistry();
 EXPORT void addToRegistry(const LogMetaData& data);
 EXPORT void addToVector(std::vector<std::string_view>& vec, const std::string_view& str);
 EXPORT std::string generateEventsYaml();
-EXPORT std::string generateCtfMetaData();
+
 
 template <LogLevel level, typename Task, typename MacroData, typename... Args>
 struct MetaDataNode
@@ -125,7 +125,7 @@ void logFunc(Args&&... args)
     static constexpr std::string_view format = MacroData{}().format;
     static constexpr std::string_view parsedFormat = ParseFormatString<format>::format;
     //logEtw(std::forward<Args>(args)...);
-    barectf::logEvent(eventId, std::forward<Args>(args)...);
+    barectf::log_event(eventId, std::forward<Args>(args)...);
     if constexpr (level <= LogLevel::Informational)
         console << fmt::format(FMT_STRING(parsedFormat), std::forward<Args>(args)...) << "\n";
 }

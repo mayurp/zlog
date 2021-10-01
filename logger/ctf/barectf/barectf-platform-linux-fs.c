@@ -46,6 +46,7 @@ struct barectf_platform_linux_fs_ctx {
 	unsigned int full_backend_rand_max;
 };
 
+NO_INSTRUMENT
 static uint64_t get_clock(void * const data)
 {
 	struct timespec ts;
@@ -54,6 +55,7 @@ static uint64_t get_clock(void * const data)
 	return ts.tv_sec * 1000000000ULL + ts.tv_nsec;
 }
 
+NO_INSTRUMENT
 static void write_packet(const struct barectf_platform_linux_fs_ctx * const platform_ctx)
 {
 	const size_t nmemb = fwrite(barectf_packet_buf(&platform_ctx->ctx),
@@ -62,6 +64,7 @@ static void write_packet(const struct barectf_platform_linux_fs_ctx * const plat
 	assert(nmemb == 1);
 }
 
+NO_INSTRUMENT
 static int is_backend_full(void * const data)
 {
 	int is_backend_full = 0;
@@ -80,6 +83,7 @@ end:
 	return is_backend_full;
 }
 
+NO_INSTRUMENT
 static void open_packet(void * const data)
 {
 	struct barectf_platform_linux_fs_ctx * const platform_ctx =
@@ -88,6 +92,7 @@ static void open_packet(void * const data)
 	barectf_default_open_packet(&platform_ctx->ctx);
 }
 
+NO_INSTRUMENT
 static void close_packet(void * const data)
 {
 	struct barectf_platform_linux_fs_ctx * const platform_ctx =

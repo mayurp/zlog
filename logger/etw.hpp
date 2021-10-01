@@ -16,7 +16,6 @@
 #include <fmt/format.h>
 
 
-
 struct Event
 {
     void* data = nullptr;

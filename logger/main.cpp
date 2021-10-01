@@ -14,7 +14,7 @@
 #include <sstream>
 #include <thread>
 
-#include "barectf/logger.hpp"
+#include "ctf/ctf_logger.hpp"
 
 #define FMT_ENFORCE_COMPILE_STRING
 #include <fmt/format.h>
@@ -22,6 +22,7 @@
 
 
 int ETWStartEventId = 1000;
+
 
 struct Vec3
 {
@@ -178,6 +179,7 @@ void testLogs()
 
     std::cout << "\n------- log calls start --------\n";
 
+    /*
     LOGI("1st line -- {name} is {length}cm long", "jie", 12.f);
     LOGTASKI(SomeTask, "2nd Line -- x: {x} is {config}", x, config);
     LOGTASKI(SomeTask, "3rd Line -- v: {position}", Vec3{2, 10, -1});
@@ -186,53 +188,74 @@ void testLogs()
     LOGTASKI(SomeTask, "6th Line -- xs set: {xs_a}", xs_s);
     //LOGTASK(SomeTask, "7th Line -- xs map: {xs_map}", xs_map);
     LOGTASKI(SomeTask, "8th Line -- tuple: {t}", t);
-
+*/
+    
     std::cout << "\n------- log calls end --------\n";
     std::cout << "\n------- testLogs --------\n";
 }
 
 void testBareCtf()
 {
-    std::cout << "---------------------\n";
-    const std::string metadata = logging::generateCtfMetaData();
-    std::cout << metadata;
-    std::cout << "---------------------\n";
-    
-    {
-        std::ofstream metaDataOfs("trace/metadata");
-        if (metaDataOfs.is_open())
-        {
-            metaDataOfs << metadata;
-        }
-        else
-        {
-            throw std::runtime_error("Unable to open file");
-            return;
-        }
-    }
-
-    barectf::ScopedContext scopedCtx;
-
+    /*
     std::string s1 = "hello_s";
     std::string_view s2 = "hello_sv";
 
-    LOGD("The message is {keyA}, {key2} and then {key3}", 24.f, 12u, s1);
+    LOGD("The message is {keyA}, {key2} and then {key3}", 24.f, (uint32_t)12u, s1);
+    
     
     LOGD("Some error happened Gub {error}", s2);
     
     LOGD("Another error happened here {error}", "Oh dear");
     
-    std::thread thread([]
+    std::thread thread([&]
     {
-        barectf::ScopedContext scopedCtx;
         LOGD("Logging on some other thread {a}, {b}, {c}", 1234, 54.6, 12.f);
-
     });
 
     LOGD("Logging on main thread {a}, {b}, {c}", 1234, 54.6, 12.f);
     LOGD("Logging on main thread agaginagan {a}, {b}, {c}", 1234, 54.6, 12.f);
 
-    thread.join();
+    LOGI("{position}", "Info");
+    LOGD("{position}", "Debug");
+    LOGE("{position}", "Error");
+    LOGW("{position}", "Warning");
+    LOGC("{position}", "Critical");
+*/
+    LOGD("Error reading {config}", Config("someName-----------", 12345, true));
+    {
+        
+        using namespace std::chrono;
+        auto t1 = std::chrono::high_resolution_clock::now();
+        size_t calls = 100;
+        for (int i = 0; i < calls; ++i)
+        {
+            LOGD("Some message with {anInt}", i);
+        }
+        auto t2 = std::chrono::high_resolution_clock::now();
+
+        //Getting number of milliseconds as an integer
+        auto ms_int = duration_cast<milliseconds>(t2 - t1);
+        auto ns_int = duration_cast<nanoseconds>(t2 - t1);
+        
+        std::cout << "calls took " << ms_int.count() << "ms\n";
+        std::cout << "per calls " << ns_int.count() / float(calls) << "ns\n";
+
+    }
+    
+    //thread.join();
+    
+   // std::array arry = {"1", "11"};
+
+    //std::cout << type_name2<decltype(arry)>()() << "\n";
+
+//    static_assert(test_size(arry) == 2);
+    
+    //std::cout << test_size(arry) << "---";
+    
+//    std::cout << sizeof(arry[0]) << "---";
+//    std::cout << sizeof(arry[1]) << "---";
+//    std::cout << sizeof("111") << "---";
+
 }
 
 
