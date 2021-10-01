@@ -319,9 +319,10 @@ std::string generate_ctf_metadata()
                 continue;
 
             // event name is identifier for callsite block so need to ensure it's
-            // unique by appending the eventId
+            // unique by including the eventId
+            // add format string here as workaround for tooling not supporting this as a separate field
             std::ostringstream ns;
-            ns << metaData.eventName << "_" << metaData.eventId;
+            ns << "[" << metaData.eventId << "] " << metaData.macroData.format;
             const std::string eventName = ns.str();
             
             const auto& macroData = metaData.macroData;
@@ -330,8 +331,9 @@ std::string generate_ctf_metadata()
             ss << "    id = " << metaData.eventId << ";\n";
             ss << "    name = \"" << eventName << "\";\n";
             ss << "    loglevel = " << static_cast<int>(toLttngLogLevel(metaData.level)) << ";\n";
-            ss << "    msg = \"" << macroData.format << "\";\n";
-            // TODO: add to common meta data?
+            // TODO: add back when user attributes are properly supported in babeltrace and TraceCompass
+            // This will come with CTF 2.0 support
+            //ss << "    msg = \"" << macroData.format << "\";\n";
             ss << "    fields := struct {\n";
             for (int i = 0; i < metaData.fieldNames.size(); ++i)
             {
