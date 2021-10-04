@@ -209,25 +209,24 @@ event {
     )";
 }
 
-static const char* ctf_basic_types()
+static std::string ctf_basic_types()
 {
-    return R"(
-typealias integer {
-    signed = false;
-    size = 32;
-    byte_order = native;
-    base = 10;
-    align = 1;
-} := uint32_t;
+    std::ostringstream ss;
+    for (int size : {8, 16, 32, 64} )
+    {
+        for (bool signd : { true, false })
+        {
+            ss << "typealias integer {\n";
+            ss << "    signed = " << (signd ? "true" : "false") << ";\n";
+            ss << "    size = " << size << ";\n";
+            ss << "    byte_order = native;\n";
+            ss << "    base = 10;\n";
+            ss << "    align = 1;\n";
+            ss << "} := " << (signd ? "" : "u") << "int" << size << "_t;\n\n";
+        }
+    }
 
-typealias integer {
-    signed = true;
-    size = 32;
-    byte_order = native;
-    base = 10;
-    align = 1;
-} := int64_t;
-    
+    ss << R"(
 typealias floating_point {
     exp_dig = 8;
     mant_dig = 24;
@@ -251,19 +250,34 @@ typealias integer {
 } := bool;
     
     )";
+    
+    return ss.str();
 }
 
 static std::string ctf_custom_types()
 {
+    using namespace reflection;
     std::ostringstream ss;
     for (const auto& type: reflection::getTypeRegistry())
     {
-        ss << "typealias struct {\n";
-        for (const auto& field: type.fields)
+        if (const Clazz* clazz = std::get_if<Clazz>(&type))
         {
-            ss << "    " << field.typeName << " " << field.name << ";\n";
+            ss << "typealias struct {\n";
+            for (const auto& field: clazz->fields)
+            {
+                ss << "    " << field.type << " " << field.name << ";\n";
+            }
+            ss << "} := " << clazz->name << ";\n\n";
         }
-        ss << "} := " << type.name << ";\n\n";
+        else if (const Enum* enu = std::get_if<Enum>(&type))
+        {
+            ss << "enum " << enu->name << " : " << enu->integerType << " {\n";
+            for (const auto& field: enu->fields)
+            {
+                ss << "    " << field.name << " = " << field.value << ",\n";
+            }
+            ss << "};\n\n";
+        }
     }
     return ss.str();
 }
@@ -337,7 +351,19 @@ std::string generate_ctf_metadata()
             ss << "    fields := struct {\n";
             for (int i = 0; i < metaData.fieldNames.size(); ++i)
             {
-                ss << "        " << metaData.fieldTypes[i] << " " << metaData.fieldNames[i] << ";\n";
+                ss << "        ";
+                const reflection::Type& type = metaData.fieldTypes[i];
+                std::visit([&](auto&& t)
+                {
+                    using T = std::decay_t<decltype(t)>;
+                    if constexpr (std::is_same_v<T, reflection::Array>)
+                        ss << "oh crap------------------\n";
+                    else if constexpr (std::is_same_v<T, reflection::Enum>)
+                        ss << "enum " << t.name;
+                    else
+                        ss << t.name;
+                }, type);
+                ss << " " << metaData.fieldNames[i] << ";\n";
             }
             ss << "    } align(1);\n";
             ss << "};\n\n";

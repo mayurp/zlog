@@ -11,9 +11,9 @@
 namespace reflection
 {
  
-std::vector<Type>& getTypeRegistry()
+std::vector<RegisteredType>& getTypeRegistry()
 {
-    static std::vector<Type> registry;
+    static std::vector<RegisteredType> registry;
     return registry;
 }
 

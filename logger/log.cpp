@@ -100,8 +100,18 @@ std::string generateEventsYaml()
 
             for (int i = 0; i < metaData.fieldNames.size(); ++i)
             {
-                // TODO map to ETW typenames
-                ss << "          -{Name: \"" << metaData.fieldNames[i] << ", Type: *" << metaData.fieldTypes[i] << "}\n";
+                ss << "        ";
+                ss << "          -{Name: \"" << metaData.fieldNames[i] << ", Type: *";
+                const reflection::Type& type = metaData.fieldTypes[i];
+                std::visit([&](auto&& t)
+                {
+                    using T = std::decay_t<decltype(t)>;
+                    if constexpr (std::is_same_v<T, reflection::Array>)
+                        ss << "---not supported yet----\n";
+                    else
+                        ss << t.name;
+                }, type);
+                ss << "}\n";
             }
 
             if (!metaData.keywords.empty())

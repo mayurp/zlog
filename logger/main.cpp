@@ -23,6 +23,12 @@
 
 int ETWStartEventId = 1000;
 
+enum class Colour
+{
+    Red = 2,
+    Green = 4,
+    Blue = 7
+};
 
 struct Vec3
 {
@@ -112,15 +118,19 @@ void testReflection()
 
 void testTypeRegistry()
 {
+    using namespace reflection;
     std::cout << "\n------- testTypeRegistry --------\n";
     for (const auto& type: reflection::getTypeRegistry())
     {
-        std::cout << "struct " << type.name << "\n{\n";
-        for (const auto& field: type.fields)
+        if (const Clazz* clazz = std::get_if<Clazz>(&type))
         {
-            std::cout << "  " << field.name << ":\t" << field.typeName << "\n";
+            std::cout << "struct " << clazz->name << "\n{\n";
+            for (const auto& field: clazz->fields)
+            {
+                std::cout << "  " << field.name << ":\t" << field.type << "\n";
+            }
+            std::cout << "}\n\n";
         }
-        std::cout << "}\n\n";
     }
     std::cout << "\n------- end testTypeRegistry --------\n";
 
@@ -149,8 +159,8 @@ void testLogRegistry()
         std::cout << "taskId: " << metaData.taskId << "\ntaskName: " << metaData.taskName << "\n";
         std::cout << "logId: " << metaData.eventId << "\nfile: " << macroData.file << "\nline: " << macroData.line << "\n";
         std::cout << "formatStr: " << macroData.format << "\n";
-        for (int i = 0; i < metaData.fieldNames.size(); ++i)
-            std::cout << metaData.fieldNames[i] << " : " << metaData.fieldTypes[i] << "\n";
+        //for (int i = 0; i < metaData.fieldNames.size(); ++i)
+        //    std::cout << metaData.fieldNames[i] << " : " << metaData.fieldTypes[i] << "\n";
         
         std::cout << "keywords: ";
         for (const auto& k : metaData.keywords)
@@ -241,6 +251,9 @@ void testBareCtf()
         std::cout << "per calls " << ns_int.count() / float(calls) << "ns\n";
 
     }
+    
+    Colour c = Colour::Blue;
+    LOGD("Some colour : {colour}", c);
     
     //thread.join();
     

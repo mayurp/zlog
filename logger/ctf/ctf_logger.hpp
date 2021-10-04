@@ -83,7 +83,8 @@ inline size_t arg_size(const char* str)
 }
 
 template<typename T,
-    std::enable_if_t<std::is_arithmetic_v<std::remove_reference_t<T>>, bool> = true
+    std::enable_if_t<std::is_arithmetic_v<std::remove_reference_t<T>> ||
+                     std::is_enum_v<std::remove_reference_t<T>>, bool> = true
 >
 NO_INSTRUMENT
 constexpr size_t arg_size(T&& arg)
@@ -142,7 +143,8 @@ inline void serialize_arg(uint8_t*& buf, const std::string_view& arg)
 }
 
 template<typename T,
-    std::enable_if_t<std::is_arithmetic_v<std::remove_reference_t<T>>, bool> = true
+    std::enable_if_t<std::is_arithmetic_v<std::remove_reference_t<T>> ||
+                     std::is_enum_v<std::remove_reference_t<T>>, bool> = true
 >
 NO_INSTRUMENT
 inline void serialize_arg(uint8_t*& buf, T&& arg)

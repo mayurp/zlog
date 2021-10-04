@@ -13,6 +13,7 @@
 #include "type_name.hpp"
 
 #include <vector>
+#include <variant>
 
 
 namespace reflection
@@ -98,19 +99,46 @@ constexpr bool is_reflected_v
     <T, std::void_t<decltype(reflection::reflect_members<T>::is_reflected)>> = true;
 
 // Type registry populated on static initialisation
-struct Type
+
+struct Primitive
+{
+    std::string_view name;
+};
+
+struct Clazz
 {
     struct Field
     {
         std::string_view name;
-        std::string_view typeName;
+        std::string_view type;
     };
-
     std::string_view name;
     std::vector<Field> fields;
 };
 
-std::vector<Type>& getTypeRegistry();
+struct Enum
+{
+    std::string_view integerType;
+    struct Field
+    {
+        std::string_view name;
+        int value;
+    };
+    std::string_view name;
+    std::vector<Field> fields;
+};
+
+struct Array
+{
+    std::string_view valueType;
+    bool isDynamic = false;
+    size_t size = 0;
+};
+
+using Type = std::variant<Primitive, Clazz, Enum, Array>; 
+using RegisteredType = std::variant<Clazz, Enum>;
+
+std::vector<RegisteredType>& getTypeRegistry();
 
 template<typename T>
 struct RegisterType
@@ -118,7 +146,7 @@ struct RegisterType
     RegisterType()
     {
         static_assert(reflection::is_reflected_v<T>, "Type is not reflected");
-        Type type;
+        Clazz type;
         type.name = type_name<T>();
         reflection::for_each<T>([&](const std::string_view& memberName, auto memberInfo)
         {
