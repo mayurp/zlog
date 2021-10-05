@@ -128,13 +128,23 @@ reflection::Type makeReflectionType()
         reflection::Primitive prim{name};
         return prim;
     }
+    // static array. TODO: support [] arrays too
     else if constexpr (is_std_array_v<U>)
     {
         reflection::Array array;
         array.isDynamic = false;
-        using VT = serialised_type_t<typename T::value_type>;
+        using VT = serialised_type_t<typename U::value_type>;
         array.valueType = type_name_v<VT>;
-        array.size == T::size;
+        array.size = array_size<U>::size;
+        return array;
+    }
+    // dynamic array
+    else if constexpr (is_container_v<U>)
+    {
+        reflection::Array array;
+        array.isDynamic = true;
+        using VT = serialised_type_t<typename U::value_type>;
+        array.valueType = type_name_v<VT>;
         return array;
     }
     else

@@ -258,6 +258,7 @@ static std::string ctf_custom_types()
 {
     using namespace reflection;
     std::ostringstream ss;
+    // TODO: use std::visit
     for (const auto& type: reflection::getTypeRegistry())
     {
         if (const Clazz* clazz = std::get_if<Clazz>(&type))
@@ -353,17 +354,27 @@ std::string generate_ctf_metadata()
             {
                 ss << "        ";
                 const reflection::Type& type = metaData.fieldTypes[i];
+                const std::string_view& fieldName = metaData.fieldNames[i];
                 std::visit([&](auto&& t)
                 {
                     using T = std::decay_t<decltype(t)>;
                     if constexpr (std::is_same_v<T, reflection::Array>)
-                        ss << "oh crap------------------\n";
+                    {
+                        if (t.isDynamic)
+                        {
+                            ss << "uint32_t " << "_" << fieldName << "_length;\n";
+                            ss << "        ";
+                            ss << t.valueType << " " << fieldName << "[_" << fieldName << "_length]";
+                        }
+                        else
+                            ss << t.valueType << " " << metaData.fieldNames[i] << "[" << t.size << "]";
+                    }
                     else if constexpr (std::is_same_v<T, reflection::Enum>)
-                        ss << "enum " << t.name;
+                        ss << "enum " << t.name << " " << metaData.fieldNames[i];
                     else
-                        ss << t.name;
+                        ss << t.name << " " << metaData.fieldNames[i];;
                 }, type);
-                ss << " " << metaData.fieldNames[i] << ";\n";
+                ss << ";\n";
             }
             ss << "    } align(1);\n";
             ss << "};\n\n";

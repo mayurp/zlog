@@ -132,10 +132,10 @@ struct Array
 {
     std::string_view valueType;
     bool isDynamic = false;
-    size_t size = 0;
+    uint32_t size = 0; // only used for static arrays
 };
 
-using Type = std::variant<Primitive, Clazz, Enum, Array>; 
+using Type = std::variant<Primitive, Clazz, Enum, Array>;
 using RegisteredType = std::variant<Clazz, Enum>;
 
 std::vector<RegisteredType>& getTypeRegistry();

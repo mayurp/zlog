@@ -5,6 +5,7 @@
 #include <array>
 #include <type_traits>
 #include <set>
+#include <list>
 #include <map>
 #include <string_view>
 #include <string>
@@ -38,11 +39,11 @@ REFLECT_WITH_FORMATTER(Vec3, x, y, z)
 
 struct X
 {
-    X(int x) { std::cout << "construct\n";}
-    X(const X&) { std::cout << "copy construct\n";}
-    X(X&&) { std::cout << "move construct\n";}
-    X& operator=(const X&) { std::cout << "copy assign\n"; return *this;}
-    X& operator=(X&&) { std::cout << "move assign\n"; return *this;}
+    X(int _a) : a(_a) { std::cout << "X construct\n";}
+    X(const X& x) : a(x.a) { std::cout << "copy construct\n";}
+    X(X&& x) : a(x.a) { std::cout << "move construct\n";}
+    X& operator=(const X& x)  { a = x.a; std::cout << "copy assign\n"; return *this;}
+    X& operator=(X&& x ) { a = x.a; std::cout << "move assign\n"; return *this;}
     
     int a = 0;
     bool b = true;
@@ -179,6 +180,7 @@ void testLogs()
     std::vector<X> xs = {X(1), X(2) , X(3)};
 
     std::array xs_a =  {X(1), X(2) , X(3)};
+
     std::set<X> xs_s(xs.begin(), xs.end());
     std::map<std::string, X> xs_map = {{"a", X(1)}};
 
@@ -254,6 +256,20 @@ void testBareCtf()
     
     Colour c = Colour::Blue;
     LOGD("Some colour : {colour}", c);
+    
+    // TODO: duplcate enum def in metadata
+    //LOGD("Some colour : {colour}", c);
+    std::array xs_a =  {X(1), X(2) , X(3)};
+    std::vector<X> xs_v =  {X(1), X(2) , X(3)};
+    std::list<X> xs_l =  {X(1), X(2) , X(3)};
+
+    std::cout << "log begin\n";
+    LOGD("Some xs_a : {arr}", xs_a);
+    LOGD("Some xs_v : {vec}", xs_v);
+    LOGD("Some xs_l : {list}", xs_l);
+
+    std::cout << "log end\n";
+
     
     //thread.join();
     

@@ -11,6 +11,7 @@
 
 #include "barectf.h"
 #include "../reflection.hpp"
+#include "../type_traits.hpp"
 
 #include <filesystem>
 #include <string>
@@ -106,6 +107,19 @@ constexpr size_t arg_size(T&& arg)
     return size;
 }
 
+template<typename T,
+    std::enable_if_t<is_container<std::decay_t<T>>::value ||
+    is_std_array_v<std::decay_t<T>>, bool> = true
+>
+NO_INSTRUMENT
+constexpr size_t arg_size(const T& arg)
+{
+    // TODO first add size for dynamics array
+    if (arg.size() == 0)
+        return 0;
+    return arg.size() * arg_size(*arg.begin());
+}
+
 template<typename... Args>
 NO_INSTRUMENT
 inline constexpr size_t payload_size(Args&&... args)
@@ -163,6 +177,25 @@ inline constexpr void serialize_arg(uint8_t*& buf, T&& arg)
     {
         serialize_arg(buf, value);
     });
+}
+
+// TODO: support [] static arrays
+template<typename T,
+    std::enable_if_t<is_container<std::decay_t<T>>::value ||
+    is_std_array_v<std::decay_t<T>>, bool> = true
+>
+NO_INSTRUMENT
+inline constexpr void serialize_arg(uint8_t*& buf, const T& arg)
+{
+    // First write size for dynamics array
+    // type of size must match what is used in generate_ctf_metadata();
+    if constexpr (is_container_v<std::decay_t<T>>)
+        serialize_arg(buf, static_cast<uint32_t>(arg.size()));
+
+    for (const auto& elem : arg)
+    {
+        serialize_arg(buf, elem);
+    }
 }
 
 template<typename Arg1, typename... Args>
