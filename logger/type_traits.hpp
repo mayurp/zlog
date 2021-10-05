@@ -12,6 +12,9 @@
 
 
 template<typename T>
+using remove_cvref_t = std::remove_cv_t<std::remove_reference_t<T>>;
+
+template<typename T>
 struct is_std_array : std::false_type {};
   
 template<typename T, std::size_t N>

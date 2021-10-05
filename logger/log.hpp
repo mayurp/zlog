@@ -92,7 +92,7 @@ template<typename T>
 struct serialised_type
 {
 private:
-    using U = typename std::decay_t<T>;
+    using U = remove_cvref_t<T>;
 public:
     using type = typename std::conditional_t<
         std::is_integral_v<U>,
@@ -138,7 +138,16 @@ reflection::Type makeReflectionType()
         array.size = array_size<U>::size;
         return array;
     }
-    // dynamic array
+    else if constexpr (std::is_array_v<U>)
+    {
+        reflection::Array array;
+        array.isDynamic = false;
+        using VT = serialised_type_t<std::remove_all_extents_t<U>>;
+        array.valueType = type_name_v<VT>;
+        array.size = std::extent_v<U>;
+        return array;
+    }
+    // dynamic arrays, lists
     else if constexpr (is_container_v<U>)
     {
         reflection::Array array;

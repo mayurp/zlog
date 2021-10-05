@@ -262,11 +262,14 @@ void testBareCtf()
     std::array xs_a =  {X(1), X(2) , X(3)};
     std::vector<X> xs_v =  {X(1), X(2) , X(3)};
     std::list<X> xs_l =  {X(1), X(2) , X(3)};
+    const X xs_sa[3] = {X(1), X(2) , X(3)};
 
+    
     std::cout << "log begin\n";
     LOGD("Some xs_a : {arr}", xs_a);
     LOGD("Some xs_v : {vec}", xs_v);
     LOGD("Some xs_l : {list}", xs_l);
+    LOGD("Some xs_sa : {carray}", xs_sa);
 
     std::cout << "log end\n";
 
