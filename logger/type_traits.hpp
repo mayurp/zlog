@@ -67,9 +67,48 @@ struct is_container<
             >
         > : public std::true_type {};
 
+
 template<typename T>
 inline constexpr bool is_container_v = is_container<T>::value;
 
+template <typename T, typename = void>
+inline constexpr bool is_iterable_v = false;
+ 
+template <typename T>
+inline constexpr bool is_iterable_v<T,
+                                    std::void_t<decltype(std::declval<T>().begin(), std::declval<T>().end())>>
+                                    = true;
+
+
+template <typename T, typename = void>
+inline constexpr bool is_map_v = false;
+ 
+template <typename T>
+inline constexpr bool is_map_v<T,
+                                    std::void_t<decltype(std::declval<T>().begin(), std::declval<T>().end()),
+                                                typename T::key_type,
+                                                typename T::mapped_type
+                                                >>
+                                    = true;
+
+
+template <typename T>
+inline constexpr bool is_tuple_v = false;
+
+template <typename... U>
+inline constexpr bool is_tuple_v<std::tuple<U...>> = true;
+
+template <typename T, typename Char, typename = void>
+inline constexpr bool is_range_v = false;
+
+template <typename T, typename Char>
+inline constexpr bool is_range_v<T, Char> = is_iterable_v<T> && !std::is_convertible<T, std::basic_string<Char>>::value && !std::is_constructible<std::basic_string_view<Char>, T>::value;
+
+template <typename T>
+inline constexpr bool is_pair_v = false;
+
+template <typename T, typename U>
+inline constexpr bool is_pair_v<std::pair<T,U>> = true;
 
 template<typename T>
 struct explicit_int_type

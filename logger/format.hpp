@@ -19,6 +19,7 @@
 //    2. Strip out arg names so make it compatible with fmt
 //       example: "Some message: {argName}"  -> "Some message: {}"
 //
+// TODO: check arg names are valid variable names (e.g no spaces)
 template <std::string_view const& Format>
 struct ParseFormatString
 {

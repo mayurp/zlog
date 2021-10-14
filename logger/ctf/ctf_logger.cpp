@@ -254,31 +254,122 @@ typealias integer {
     return ss.str();
 }
 
+// Helper to visit reflection::type variant
+// Final ";\n" is omiitted to support recursion
+struct struct_visitor
+{
+    struct_visitor(std::ostream& ss_, int indentCount_, const std::string_view& fieldName_)
+        : ss(ss_), indentCount(indentCount_), fieldName(fieldName_)
+    {}
+    
+    struct_visitor indented_visitor(const std::string_view& fieldName_ = "") const
+    {
+        return struct_visitor(ss, indentCount + 4, fieldName_);
+    }
+
+    void operator()(const reflection::Primitive& t) const
+    {
+        indent();
+        ss << t.name << " " << fieldName;
+    }
+
+    void operator()(const reflection::Clazz& t) const
+    {
+        indent();
+        ss << t.name << " " << fieldName;
+    }
+
+    void operator()(const reflection::Array& t) const
+    {
+        if (t.isDynamic)
+        {
+            indent();
+            ss << "uint32_t " << fieldName << "_length;\n";
+            std::visit(*this, t.valueType);
+            ss << " [" << fieldName << "_length]";
+        }
+        else
+        {
+            std::visit(*this, t.valueType);
+            ss << " [" << t.size << "]";
+        }
+    }
+
+    void operator()(const reflection::Tuple& t) const
+    {
+        indent();
+        ss << "struct {\n";
+        size_t i = 0;;
+        for (const auto& type : t.types)
+        {
+            std::visit(indented_visitor("v" + std::to_string(i++)), type);
+            ss << ";\n";
+        }
+        indent();
+        ss << "} align(1) " << fieldName;
+    }
+
+    void operator()(const reflection::Enum& t) const
+    {
+        indent();
+        ss << "enum " << t.name << " " << fieldName;
+    }
+
+    void operator()(const reflection::Map& map) const
+    {
+        indent();
+        ss << "typealias struct {\n";
+        std::visit(indented_visitor("key"), map.keyType);
+        ss << ";\n";
+        std::visit(indented_visitor("value"), map.valueType);
+        ss << ";\n";
+        indent();
+        ss << "} :=  " << fieldName << "_entry;\n";
+        indent();
+        ss << "uint32_t " << fieldName << "_length;\n";
+        indent();
+        ss << fieldName << "_entry " << fieldName << "[" << fieldName << "_length]";
+    }
+    
+    void indent() const
+    {
+        ss << std::setw(indentCount) << "";
+    }
+    
+    std::ostream& ss;
+    int indentCount = 0;
+    std::string_view fieldName;
+};
+
 static std::string ctf_custom_types()
 {
     using namespace reflection;
     std::ostringstream ss;
-    // TODO: use std::visit
     for (const auto& type: reflection::getTypeRegistry())
     {
-        if (const Clazz* clazz = std::get_if<Clazz>(&type))
+        std::visit([&](auto&& t)
         {
-            ss << "typealias struct {\n";
-            for (const auto& field: clazz->fields)
+            using T = std::decay_t<decltype(t)>;
+            if constexpr (std::is_same_v<T, reflection::Clazz>)
             {
-                ss << "    " << field.type << " " << field.name << ";\n";
+                ss << "typealias struct {\n";
+                for (const auto& field: t.fields)
+                {
+                    std::visit(struct_visitor(ss, 4, field.name), field.type);
+                    ss << ";\n";
+                }
+                ss << "} := " << t.name << ";\n\n";
             }
-            ss << "} := " << clazz->name << ";\n\n";
-        }
-        else if (const Enum* enu = std::get_if<Enum>(&type))
-        {
-            ss << "enum " << enu->name << " : " << enu->integerType << " {\n";
-            for (const auto& field: enu->fields)
+            if constexpr (std::is_same_v<T, reflection::Enum>)
             {
-                ss << "    " << field.name << " = " << field.value << ",\n";
+                ss << "enum " << t.name << " : " << t.integerType << " {\n";
+                for (const auto& field: t.fields)
+                {
+                    ss << "    " << field.name << " = " << field.value << ",\n";
+                }
+                ss << "};\n\n";
             }
-            ss << "};\n\n";
-        }
+        }, type);
     }
     return ss.str();
 }
@@ -352,28 +443,9 @@ std::string generate_ctf_metadata()
             ss << "    fields := struct {\n";
             for (int i = 0; i < metaData.fieldNames.size(); ++i)
             {
-                ss << "        ";
                 const reflection::Type& type = metaData.fieldTypes[i];
                 const std::string_view& fieldName = metaData.fieldNames[i];
-                std::visit([&](auto&& t)
-                {
-                    using T = std::decay_t<decltype(t)>;
-                    if constexpr (std::is_same_v<T, reflection::Array>)
-                    {
-                        if (t.isDynamic)
-                        {
-                            ss << "uint32_t " << "_" << fieldName << "_length;\n";
-                            ss << "        ";
-                            ss << t.valueType << " " << fieldName << "[_" << fieldName << "_length]";
-                        }
-                        else
-                            ss << t.valueType << " " << metaData.fieldNames[i] << "[" << t.size << "]";
-                    }
-                    else if constexpr (std::is_same_v<T, reflection::Enum>)
-                        ss << "enum " << t.name << " " << metaData.fieldNames[i];
-                    else
-                        ss << t.name << " " << metaData.fieldNames[i];;
-                }, type);
+                std::visit(struct_visitor(ss, 8, fieldName), type);
                 ss << ";\n";
             }
             ss << "    } align(1);\n";

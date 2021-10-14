@@ -106,10 +106,10 @@ std::string generateEventsYaml()
                 std::visit([&](auto&& t)
                 {
                     using T = std::decay_t<decltype(t)>;
-                    if constexpr (std::is_same_v<T, reflection::Array>)
-                        ss << "---not supported yet----\n";
-                    else
+                    if constexpr (std::is_same_v<T, reflection::Clazz> || std::is_same_v<T, reflection::Primitive>)
                         ss << t.name;
+                    else
+                        ss << "---not supported yet----\n";
                 }, type);
                 ss << "}\n";
             }

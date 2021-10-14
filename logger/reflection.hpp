@@ -11,6 +11,9 @@
 
 #include "map_macro.hpp"
 #include "type_name.hpp"
+#include "type_traits.hpp"
+
+#include "magic_enum.hpp"
 
 #include <vector>
 #include <variant>
@@ -105,17 +108,6 @@ struct Primitive
     std::string_view name;
 };
 
-struct Clazz
-{
-    struct Field
-    {
-        std::string_view name;
-        std::string_view type;
-    };
-    std::string_view name;
-    std::vector<Field> fields;
-};
-
 struct Enum
 {
     std::string_view integerType;
@@ -128,17 +120,165 @@ struct Enum
     std::vector<Field> fields;
 };
 
+struct Clazz;
+struct Array;
+struct Map;
+struct Tuple;
+
+template <typename T> struct recursive_wrapper
+{
+  // construct from an existing object
+  //recursive_wrapper(T t_) { t.emplace_back(std::move(t_)); }
+  recursive_wrapper(const T& t_) { t.emplace_back(t_); }
+  recursive_wrapper(const recursive_wrapper& w) = default;
+  recursive_wrapper& operator=(const recursive_wrapper &) = default;
+  recursive_wrapper& operator=(const T& t_) { t.emplace_back(t_); };
+
+  // cast back to wrapped type
+  operator const T &() const { return t.front(); }
+  // store the value
+  std::vector<T> t;
+};
+
+using Type = std::variant<Primitive, Enum, recursive_wrapper<Clazz>, recursive_wrapper<Array>,
+                            recursive_wrapper<Map>, recursive_wrapper<Tuple>
+                            >;
+
+
+struct Clazz
+{
+    struct Field
+    {
+        std::string_view name;
+        Type type;
+    };
+    std::string_view name;
+    std::vector<Field> fields;
+};
+
 struct Array
 {
-    std::string_view valueType;
+    Type valueType;
     bool isDynamic = false;
     uint32_t size = 0; // only used for static arrays
 };
 
-using Type = std::variant<Primitive, Clazz, Enum, Array>;
+struct Map
+{
+    Type keyType;
+    Type valueType;
+};
+
+struct Tuple
+{
+    std::vector<Type> types;
+};
+
 using RegisteredType = std::variant<Clazz, Enum>;
 
 std::vector<RegisteredType>& getTypeRegistry();
+
+
+// transform type to one suitable for serialisation
+// e.g int -> int32_t
+//     SomeType& -> SomeType
+template<typename T>
+struct serialised_type
+{
+private:
+    using U = remove_cvref_t<T>;
+public:
+    using type = typename std::conditional_t<
+        std::is_integral_v<U>,
+        explicit_int_type_t<U>, U>;
+};
+
+template<typename T>
+using serialised_type_t = typename serialised_type<T>::type;
+
+
+// TODO: move to reflection?
+template<typename T>
+reflection::Type makeReflectionType()
+{
+    using U = serialised_type_t<T>;
+    static constexpr std::string_view name = type_name_v<U>;
+    if constexpr (std::is_enum_v<U>)
+    {
+        reflection::Enum e;
+        e.name = name;
+        e.integerType = type_name_v<typename magic_enum::underlying_type<T>::type>;
+        for (const auto value : magic_enum::enum_values<T>())
+        {
+            e.fields.push_back({ magic_enum::enum_name(value), magic_enum::enum_integer(value) });
+        }
+        // Only enums will get auto registered when they are used my LOG macros
+        // Classes need to be explicitly registered
+        // TODO: ensure enums are only registered once
+        reflection::getTypeRegistry().push_back(e);
+        return e;
+    }
+    else if constexpr (std::is_arithmetic_v<U> || is_string_v<U>)
+    {
+        reflection::Primitive prim{name};
+        return prim;
+    }
+    // std::array
+    else if constexpr (is_std_array_v<U>)
+    {
+        reflection::Array array;
+        array.isDynamic = false;
+        using VT = serialised_type_t<typename U::value_type>;
+        array.valueType = makeReflectionType<VT>();
+        array.size = array_size<U>::size;
+        return array;
+    }
+    // [] array
+    else if constexpr (std::is_array_v<U>)
+    {
+        reflection::Array array;
+        array.isDynamic = false;
+        using VT = serialised_type_t<std::remove_all_extents_t<U>>;
+        array.valueType = makeReflectionType<VT>();
+        array.size = std::extent_v<U>;
+        return array;
+    }
+    // dynamic map
+    else if constexpr (is_map_v<U>)
+    {
+        reflection::Map map;
+        using KT = serialised_type_t<typename U::key_type>;
+        using VT = serialised_type_t<typename U::mapped_type>;
+        map.keyType = makeReflectionType<KT>();
+        map.valueType = makeReflectionType<VT>();
+        return map;
+    }
+    // dynamic arrays, lists etc
+    else if constexpr (is_iterable_v<U>)
+    {
+        reflection::Array array;
+        array.isDynamic = true;
+        using VT = serialised_type_t<typename U::value_type>;
+        array.valueType = makeReflectionType<VT>();
+        return array;
+    }
+    else if constexpr (is_pair_v<U>)
+    {
+        reflection::Tuple tuple;
+        using T1 = serialised_type_t<typename U::first_type>;
+        using T2 = serialised_type_t<typename U::second_type>;
+        tuple.types.emplace_back(makeReflectionType<T1>());
+        tuple.types.emplace_back(makeReflectionType<T2>());
+        return tuple;
+    }
+    else
+    {
+        // Fields not populated here since we only need the typename
+        // TODO: make this nicer
+        reflection::Clazz clazz{name};
+        return clazz;
+    }
+}
 
 template<typename T>
 struct RegisterType
@@ -151,7 +291,7 @@ struct RegisterType
         reflection::for_each<T>([&](const std::string_view& memberName, auto memberInfo)
         {
             using ValueType = typename decltype(memberInfo)::ValueType;
-            type.fields.push_back({memberName, type_name<ValueType>()});
+            type.fields.push_back({memberName, makeReflectionType<ValueType>()});
         });
         getTypeRegistry().push_back(type);
     }

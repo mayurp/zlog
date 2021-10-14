@@ -110,6 +110,15 @@ constexpr size_t arg_size(T&& arg)
 }
 
 template<typename T,
+    std::enable_if_t<is_pair_v<T>, bool> = true
+>
+NO_INSTRUMENT
+constexpr size_t arg_size(const T& arg)
+{
+    return arg_size(arg.first) + arg_size(arg.second);
+}
+
+template<typename T,
     std::enable_if_t<
         is_container_v<remove_cvref_t<T>> ||
         is_std_array_v<remove_cvref_t<T>>
@@ -200,6 +209,16 @@ inline constexpr void serialize_arg(uint8_t*& buf, T&& arg)
     {
         serialize_arg(buf, value);
     });
+}
+
+template<typename T,
+    std::enable_if_t<is_pair_v<T>, bool> = true
+>
+NO_INSTRUMENT
+inline constexpr void serialize_arg(uint8_t*& buf, const T& arg)
+{
+    serialize_arg(buf, arg.first);
+    serialize_arg(buf, arg.second);
 }
 
 // TODO: support [] static arrays

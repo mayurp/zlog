@@ -12,6 +12,7 @@
 
 #include "format.hpp"
 #include "reflection.hpp"
+#include "type_traits.hpp"
 
 #define FMT_ENFORCE_COMPILE_STRING
 #include <fmt/format.h>
@@ -111,27 +112,6 @@ struct ReflectionFormatter : fmt::formatter<std::string>
 };
 
 }
-
-template <typename T, typename = void>
-inline constexpr bool is_iterable_v = false;
- 
-template <typename T>
-inline constexpr bool is_iterable_v<T,
-                                    std::void_t<decltype(std::declval<T>().begin(), std::declval<T>().end())>>
-                                    = true;
-
-template <typename T, typename Char, typename = void>
-inline constexpr bool is_range_v = false;
-
-template <typename T>
-inline constexpr bool is_tuple_v = false;
-
-template <typename... U>
-inline constexpr bool is_tuple_v<std::tuple<U...>> = true;
-
-template <typename T, typename Char>
-inline constexpr bool is_range_v<T, Char> = is_iterable_v<T> && !std::is_convertible<T, std::basic_string<Char>>::value && !std::is_constructible<std::basic_string_view<Char>, T>::value;
-
 
 // Use custom formatters for containers and tuples to ensure compile time strings are used
 template<typename T, typename Char>
