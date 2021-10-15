@@ -1,26 +1,21 @@
-//#include "logging/log.hpp"
-//#include "catch_include.hpp"
-
 #include "log.hpp"
 //#define CATCH_CONFIG_MAIN
 #define CATCH_CONFIG_RUNNER
 #include <catch2/catch.hpp>
-//#if __cplusplus < 201703L
-//#error yes
-//#endif
+
 
 // Compile time checks
+
 static constexpr std::string_view str1  = "{argName}";
 static_assert(ParseFormatString<str1>::format == "{}");
 static_assert(ParseFormatString<str1>::argNames.size() == 1);
 static_assert(ParseFormatString<str1>::argNames[0] == "argName");
 
-// TODO make these passs
 // handle escaped braces
-//static constexpr std::string_view str2 = "{{someText}} {argName}";
-//static_assert(ParseFormatString<str2>::format == "{{someText}} {}");
-//static_assert(ParseFormatString<str2>::argNames.size() == 1);
-//static_assert(ParseFormatString<str2>::argNames[0] == "argName");
+static constexpr std::string_view str2 = "{{someText}} {argName}";
+static_assert(ParseFormatString<str2>::format == "{{someText}} {}");
+static_assert(ParseFormatString<str2>::argNames.size() == 1);
+static_assert(ParseFormatString<str2>::argNames[0] == "argName");
 
 // handle fmt specifiers
 static constexpr std::string_view str3 = "{argName:d}";
