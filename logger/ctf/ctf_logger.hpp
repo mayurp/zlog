@@ -90,7 +90,7 @@ template<typename T,
     bool> = true
 >
 NO_INSTRUMENT
-constexpr size_t arg_size(T&& arg)
+constexpr size_t arg_size(const T arg)
 {
     return sizeof(arg);
 }
@@ -99,7 +99,7 @@ template<typename T,
     std::enable_if_t<reflection::is_reflected_v<remove_cvref_t<T>>, bool> = true
 >
 NO_INSTRUMENT
-constexpr size_t arg_size(T&& arg)
+constexpr size_t arg_size(const T& arg)
 {
     size_t size = 0;
     reflection::for_each(arg, [&](std::string_view member, const auto& value)
@@ -120,18 +120,16 @@ constexpr size_t arg_size(const T& arg)
 
 template<typename T,
     std::enable_if_t<
-        is_container_v<remove_cvref_t<T>> ||
-        is_std_array_v<remove_cvref_t<T>>
+        is_iterable_v<remove_cvref_t<T>>
     , bool> = true
 >
 NO_INSTRUMENT
 constexpr size_t arg_size(const T& arg)
 {
-    // TODO first add size for dynamics array
     // First write size for dynamics array
     // type of size must match what is used in generate_ctf_metadata();
     size_t size = 0;
-    if constexpr (is_container_v<remove_cvref_t<T>>)
+    if constexpr (!is_std_array_v<remove_cvref_t<T>>)
         size += sizeof(uint32_t);
 
     // TODO: could be constexpr if we had a separate function dealing with static arrays
@@ -193,7 +191,7 @@ template<typename T,
                      std::is_enum_v<std::remove_reference_t<T>>, bool> = true
 >
 NO_INSTRUMENT
-inline void serialize_arg(uint8_t*& buf, T&& arg)
+inline void serialize_arg(uint8_t*& buf, const T arg)
 {
     memcpy(buf, &arg, sizeof(arg));
     buf += sizeof(arg);
@@ -203,7 +201,7 @@ template<typename T,
     std::enable_if_t<reflection::is_reflected_v<remove_cvref_t<T>>, bool> = true
 >
 NO_INSTRUMENT
-inline constexpr void serialize_arg(uint8_t*& buf, T&& arg)
+inline constexpr void serialize_arg(uint8_t*& buf, const T& arg)
 {
     reflection::for_each(arg, [&](std::string_view member, const auto& value)
     {
@@ -223,7 +221,7 @@ inline constexpr void serialize_arg(uint8_t*& buf, const T& arg)
 
 // TODO: support [] static arrays
 template<typename T,
-    std::enable_if_t<is_container_v<remove_cvref_t<T>> ||
+    std::enable_if_t<is_iterable_v<remove_cvref_t<T>> ||
         is_std_array_v<remove_cvref_t<T>> ||
         std::is_array_v<T>
     , bool> = true
@@ -233,7 +231,7 @@ inline constexpr void serialize_arg(uint8_t*& buf, const T& arg)
 {
     // First write size for dynamics array
     // type of size must match what is used in generate_ctf_metadata();
-    if constexpr (is_container_v<remove_cvref_t<T>>)
+    if constexpr (!is_std_array_v<remove_cvref_t<T>> && !std::is_array_v<T>)
         serialize_arg(buf, static_cast<uint32_t>(arg.size()));
 
     for (const auto& elem : arg)
