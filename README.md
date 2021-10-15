@@ -2,19 +2,33 @@
 
 Structured binary logger
 
-# MVP:
+## Types Supported
 
-* Pass in bare ctf context (perhaps using TLS or directly has a parameter)
-* Add support for reflected types
+- [x] custom types
+- [x] STL containers (iterable, associative)
+- [x] std::array
+- [x] int someArray[10]
+- [x] enums
+
+- [ ] pair
+- [ ] tuple
+- [ ] allow nested type definitions
+
+
+* Fix style? (camelCase or snake_case - pick one!!!)
 * Add log level filtering?
 * Make std::cout output via fmt library optional (compile time / Info level and above ?)
 * github subrepo dependency on fmt library
-* write tests - mainly check no copies of data are done
+* Write tests 
+	* check no copies of data are done
+	* ctf logging of all integers types
 
 
 # Future work
- 
 * Multi-threading support (Multi producer single consumer ring buffer which is then written to file)
-* Formatted string support (tracecompass plugin?)
+* Tracecompass plugin to display format strings
+* Make loglevel work / display in tracecompass?
 * Add fmt formatters for any container type (array, list, map, set etc)
-* tidy up template stuff (extract type traits?)
+* Deal with alignment
+	* align primitives to their own size
+	* align struct to...? 
