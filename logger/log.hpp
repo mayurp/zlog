@@ -8,7 +8,6 @@
 #ifndef log_hpp
 #define log_hpp
 
-//#include "etw.hpp"
 #include "ctf/ctf_logger.hpp"
 #include "format.hpp"
 #include "type_name.hpp"
@@ -25,22 +24,6 @@
 
 #include "magic_enum.hpp"
 
-
-#ifdef BUILDING_IN_D3
-#undef EXPORT
-#ifdef BLIP_BASE_MODULE
-#define EXPORT __declspec( dllexport )
-#else
-#define EXPORT __declspec( dllimport )
-#endif
-#else
-#include <iostream>
-#define EXPORT
-#define console std::cout
-#endif
-
-// defined per dll
-extern int ETWStartEventId;
 
 enum class LogLevel
 {
@@ -66,24 +49,20 @@ struct LogMetaData
 {
     int eventId;
     std::string_view eventName;
-    int taskId;
-    std::string_view taskName;
     LogLevel level;
     LogMacroData macroData;
     // TODO use std::span so no runtime allocation is needed?
-    std::vector<std::string_view> keywords;
     std::vector<std::string_view> fieldNames;
     std::vector<reflection::Type> fieldTypes;
 };
 
-inline int eventIdSeq = ETWStartEventId;
-inline int taskIdSeq = ETWStartEventId; // TODO: check if this is ok. doesn't need to be the same, but saves defining 2 globals per dll
-template< typename T > inline const int task_id = taskIdSeq++;
+// TODO put this somewhere more obvious
+// 1 and 2 reserved for ctf cyg_profile
+inline int eventIdSeq = 3;
 
-EXPORT std::vector<LogMetaData>& getRegistry();
-EXPORT void addToRegistry(const LogMetaData& data);
-EXPORT void addToVector(std::vector<std::string_view>& vec, const std::string_view& str);
-EXPORT std::string generateEventsYaml();
+std::vector<LogMetaData>& getRegistry();
+void addToRegistry(const LogMetaData& data);
+void addToVector(std::vector<std::string_view>& vec, const std::string_view& str);
 
 // transform type to one suitable for serialisation
 // e.g int -> int32_t
@@ -103,7 +82,7 @@ template<typename T>
 using serialised_type_t = typename serialised_type<T>::type;
 
 
-template <LogLevel level, typename Task, typename MacroData, typename... Args>
+template <LogLevel level, typename MacroData, typename... Args>
 struct MetaDataNode
 {
     MetaDataNode() : eventId(eventIdSeq++)
@@ -112,9 +91,6 @@ struct MetaDataNode
         LogMetaData data;
         data.eventId = eventId;
         data.eventName = funcName(macroData.function);
-        static constexpr std::string_view taskName = className(macroData.function);
-        data.taskId = -1;// task_id<Task>; // TODO: fix. Doesn't make sense since this we're ignore Task type
-        data.taskName = taskName;//type_name<Task>();
         data.level = level;
         data.macroData = macroData;
         
@@ -126,9 +102,6 @@ struct MetaDataNode
         (data.fieldTypes.emplace_back(reflection::makeReflectionType<Args>()), ...);
         for (const auto& argName : argNames)
             addToVector(data.fieldNames, argName);
-
-        for (const auto& k : Task::keywords)
-            addToVector(data.keywords, k);
         
         addToRegistry(data);
     }
@@ -136,34 +109,29 @@ struct MetaDataNode
     int32_t eventId;
 };
 
-template<LogLevel level, typename Task, typename MacroData, typename... Args>
-inline MetaDataNode<level, Task, MacroData, Args...> meta_data_node{};
+template<LogLevel level, typename MacroData, typename... Args>
+inline MetaDataNode<level, MacroData, Args...> meta_data_node{};
 
-template <LogLevel level, typename Task, typename MacroData, typename... Args>
+template <LogLevel level, typename MacroData, typename... Args>
 void logFunc(Args&&... args)
 {
-    static const auto metaData = meta_data_node<level, Task, MacroData, Args...>;
+    static const auto metaData = meta_data_node<level, MacroData, Args...>;
     static const int eventId = metaData.eventId;
     static constexpr std::string_view format = MacroData{}().format;
     static constexpr std::string_view parsedFormat = ParseFormatString<format>::format;
-    //logEtw(std::forward<Args>(args)...);
-    barectf::log_event(eventId, std::forward<Args>(args)...);
-    if constexpr (level <= LogLevel::Informational)
-        console << fmt::format(FMT_STRING(parsedFormat), std::forward<Args>(args)...) << "\n";
-}
 
-// TODO remove after testing
-struct DefaultTask
-{
-    static constexpr std::array keywords = {"hi", "there"};
-};
+    barectf::log_event(eventId, std::forward<Args>(args)...);
+    // TODO: make this work again
+    //if constexpr (level <= LogLevel::Informational)
+    //    console << fmt::format(FMT_STRING(parsedFormat), std::forward<Args>(args)...) << "\n";
+}
 
 #ifdef _MSC_VER
 #define __PRETTY_FUNCTION__ __FUNCTION__
 #endif
 
 // Macros
-#define LOGTASK(level, Task, format, ...)                       \
+#define LOG(level, format, ...)                                 \
 do                                                              \
 {                                                               \
     using namespace logging;                                    \
@@ -176,21 +144,14 @@ do                                                              \
         }                                                       \
     };                                                          \
                                                                 \
-    logFunc<level, Task, MetaData>(__VA_ARGS__);                \
+    logFunc<level, MetaData>(__VA_ARGS__);                      \
 } while(false)                                                  \
 
-#define LOG(level, format, ...)  LOGTASK(level, logging::DefaultTask, format, __VA_ARGS__)
-#define LOGC(format, ...) LOG(LogLevel::Critical,  format, __VA_ARGS__)
-#define LOGE(format, ...) LOG(LogLevel::Error,  format, __VA_ARGS__)
-#define LOGW(format, ...) LOG(LogLevel::Warning,  format, __VA_ARGS__)
-#define LOGI(format, ...) LOG(LogLevel::Informational,  format, __VA_ARGS__)
-#define LOGD(format, ...) LOG(LogLevel::Debug,  format, __VA_ARGS__)
-
-#define LOGTASKC(Task, format, ...) LOGTASK(LogLevel::Critical, Task,  format, __VA_ARGS__)
-#define LOGTASKE(Task, format, ...) LOGTASK(LogLevel::Error, Task, format, __VA_ARGS__)
-#define LOGTASKW(Task, format, ...) LOGTASK(LogLevel::Warning, Task, format, __VA_ARGS__)
-#define LOGTASKI(Task, format, ...) LOGTASK(LogLevel::Informational, Task, format, __VA_ARGS__)
-#define LOGTASKD(Task, format, ...) LOGTASK(LogLevel::Debug, Task, format, __VA_ARGS__)
+#define LOGC(format, ...) LOG(LogLevel::Critical, format, __VA_ARGS__)
+#define LOGE(format, ...) LOG(LogLevel::Error, format, __VA_ARGS__)
+#define LOGW(format, ...) LOG(LogLevel::Warning, format, __VA_ARGS__)
+#define LOGI(format, ...) LOG(LogLevel::Informational, format, __VA_ARGS__)
+#define LOGD(format, ...) LOG(LogLevel::Debug, format, __VA_ARGS__)
 
 } // namespace logging
 

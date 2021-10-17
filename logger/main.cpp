@@ -1,5 +1,4 @@
 #include "log.hpp"
-#include "etw.hpp"
 #include "reflection.hpp"
 
 #include <array>
@@ -22,8 +21,6 @@
 #include <fmt/format.h>
 #include "fmt_helpers.hpp"
 
-
-int ETWStartEventId = 1000;
 
 enum class Colour
 {
@@ -159,15 +156,10 @@ void testLogRegistry()
     {
         const logging::LogMacroData& macroData = metaData.macroData;
         std::cout << "-------------------------\n";
-        std::cout << "taskId: " << metaData.taskId << "\ntaskName: " << metaData.taskName << "\n";
         std::cout << "logId: " << metaData.eventId << "\nfile: " << macroData.file << "\nline: " << macroData.line << "\n";
         std::cout << "formatStr: " << macroData.format << "\n";
         //for (int i = 0; i < metaData.fieldNames.size(); ++i)
         //    std::cout << metaData.fieldNames[i] << " : " << metaData.fieldTypes[i] << "\n";
-        
-        std::cout << "keywords: ";
-        for (const auto& k : metaData.keywords)
-            std::cout << k << ", ";
         std::cout << "\n-------------------------\n";
 
     }

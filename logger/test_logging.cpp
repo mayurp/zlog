@@ -28,15 +28,3 @@ static_assert(ParseFormatString<str4>::format == "{:d} {}");
 static_assert(ParseFormatString<str4>::argNames.size() == 2);
 static_assert(ParseFormatString<str4>::argNames[0] == "argName");
 static_assert(ParseFormatString<str4>::argNames[1] == "b");
-
-
-TEST_CASE("test logging", "[etw][logging]")
-{
-    //static constexpr std::string_view f = "some {0}\n";
-    //console << fmt::format(FMT_STRING(f), 1);
-    std::cout << "---------------------\n";
-    std::cout << logging::generateEventsYaml();
-    std::cout << "---------------------\n";
-    
-    LOGI("This is some logging with value: {value}", 1);
-} 

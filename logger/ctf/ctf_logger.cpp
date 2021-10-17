@@ -400,66 +400,51 @@ static LttngLogLevel toLttngLogLevel(LogLevel level)
 
 std::string generate_ctf_metadata()
 {
-    // TODO group events by task
-    std::map<int, std::vector<logging::LogMetaData>> perTaskEvents;
-
-    for (const auto& metaData : logging::getRegistry())
-    {
-        perTaskEvents[metaData.taskId].push_back(metaData);
-    }
-
     std::ostringstream ss;
 
     ss << ctf_basic_config() << "\n";
     ss << ctf_basic_types() << "\n";
     ss << ctf_custom_types() << "\n";
 
-    for (const auto& entry : perTaskEvents)
+    for (const auto& metaData : logging::getRegistry())
     {
-        const int taskId = entry.first;
-        const auto& events = entry.second;
-        assert(!events.empty());
-        for (const auto& metaData : events)
+        if (metaData.macroData.line < 200)
+            continue;
+
+        // event name is identifier for callsite block so need to ensure it's
+        // unique by including the eventId
+        // add format string here as workaround for tooling not supporting this as a separate field
+        std::ostringstream ns;
+        ns << "[" << metaData.eventId << "] " << metaData.macroData.format;
+        const std::string eventName = ns.str();
+        
+        const auto& macroData = metaData.macroData;
+        ss << "event {\n";
+        ss << "    stream_id = 0;\n";
+        ss << "    id = " << metaData.eventId << ";\n";
+        ss << "    name = \"" << eventName << "\";\n";
+        ss << "    loglevel = " << static_cast<int>(toLttngLogLevel(metaData.level)) << ";\n";
+        // TODO: add back when user attributes are properly supported in babeltrace and TraceCompass
+        // This will come with CTF 2.0 support
+        //ss << "    msg = \"" << macroData.format << "\";\n";
+        ss << "    fields := struct {\n";
+        for (int i = 0; i < metaData.fieldNames.size(); ++i)
         {
-            if (metaData.macroData.line < 200)
-                continue;
-
-            // event name is identifier for callsite block so need to ensure it's
-            // unique by including the eventId
-            // add format string here as workaround for tooling not supporting this as a separate field
-            std::ostringstream ns;
-            ns << "[" << metaData.eventId << "] " << metaData.macroData.format;
-            const std::string eventName = ns.str();
-            
-            const auto& macroData = metaData.macroData;
-            ss << "event {\n";
-            ss << "    stream_id = 0;\n";
-            ss << "    id = " << metaData.eventId << ";\n";
-            ss << "    name = \"" << eventName << "\";\n";
-            ss << "    loglevel = " << static_cast<int>(toLttngLogLevel(metaData.level)) << ";\n";
-            // TODO: add back when user attributes are properly supported in babeltrace and TraceCompass
-            // This will come with CTF 2.0 support
-            //ss << "    msg = \"" << macroData.format << "\";\n";
-            ss << "    fields := struct {\n";
-            for (int i = 0; i < metaData.fieldNames.size(); ++i)
-            {
-                const reflection::Type& type = metaData.fieldTypes[i];
-                const std::string_view& fieldName = metaData.fieldNames[i];
-                std::visit(struct_visitor(ss, 8, fieldName), type);
-                ss << ";\n";
-            }
-            ss << "    } align(1);\n";
-            ss << "};\n\n";
-            
-            // defined separately from event for some reason
-            ss << "callsite {\n";
-            ss << "    name = \"" << eventName << "\";\n";
-            ss << "    file = \"" << macroData.file << "\";\n";
-            ss << "    line = " << macroData.line << ";\n";
-            ss << "    func = \"" << macroData.function << "\";\n";
-            ss << "};\n\n";
+            const reflection::Type& type = metaData.fieldTypes[i];
+            const std::string_view& fieldName = metaData.fieldNames[i];
+            std::visit(struct_visitor(ss, 8, fieldName), type);
+            ss << ";\n";
         }
-
+        ss << "    } align(1);\n";
+        ss << "};\n\n";
+        
+        // defined separately from event for some reason
+        ss << "callsite {\n";
+        ss << "    name = \"" << eventName << "\";\n";
+        ss << "    file = \"" << macroData.file << "\";\n";
+        ss << "    line = " << macroData.line << ";\n";
+        ss << "    func = \"" << macroData.function << "\";\n";
+        ss << "};\n\n";
     }
     return ss.str();
 }

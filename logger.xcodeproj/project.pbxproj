@@ -48,7 +48,6 @@
 		77CE34D42627ACAD00B70B56 /* map_macro.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = map_macro.hpp; sourceTree = "<group>"; };
 		77CE34D72627ACAD00B70B56 /* tests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tests.cpp; sourceTree = "<group>"; };
 		77CE34D92627ACAD00B70B56 /* type_name.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = type_name.hpp; sourceTree = "<group>"; };
-		77CE34DA2627ACAD00B70B56 /* etw.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = etw.hpp; sourceTree = "<group>"; };
 		77CE34DB2627ACAD00B70B56 /* reflection.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = reflection.hpp; sourceTree = "<group>"; };
 		77CE34DC2627ACAD00B70B56 /* log.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = log.cpp; sourceTree = "<group>"; };
 		77CE34E52627ACDB00B70B56 /* libfmt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfmt.a; path = "thirdparty/fmt-7.1.3/build/libfmt.a"; sourceTree = "<group>"; };
@@ -109,7 +108,6 @@
 			isa = PBXGroup;
 			children = (
 				77C7594C26DAF6260012C73A /* ctf */,
-				77CE34DA2627ACAD00B70B56 /* etw.hpp */,
 				77CE34D22627ACAD00B70B56 /* fmt_helpers.hpp */,
 				77CE34D12627ACAD00B70B56 /* format.hpp */,
 				77CE34DC2627ACAD00B70B56 /* log.cpp */,
