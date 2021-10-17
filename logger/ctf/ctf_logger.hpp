@@ -65,6 +65,9 @@ NO_INSTRUMENT
 uint32_t get_threadid();
 
 // Helpers to for binary serialisation
+
+// Primitives
+
 NO_INSTRUMENT
 inline size_t arg_size(const std::string& str)
 {
@@ -95,8 +98,38 @@ constexpr size_t arg_size(const T arg)
     return sizeof(arg);
 }
 
+// Forward declarations
+//  Note that the second template paraemeters default value "std::enable_if_t<...>, bool> = true"
+//  In the implementation the = true is omitted. This is because you cannot redefine default template arguments
+//  However the end result is equivalent to have a single definition with = true
 template<typename T,
     std::enable_if_t<reflection::is_reflected_v<remove_cvref_t<T>>, bool> = true
+>
+NO_INSTRUMENT
+constexpr size_t arg_size(const T& arg);
+
+template<typename T,
+    std::enable_if_t<is_pair_v<T>, bool> = true
+>
+NO_INSTRUMENT
+constexpr size_t arg_size(const T& arg);
+
+template<typename T,
+    std::enable_if_t<is_iterable_v<remove_cvref_t<T>>, bool> = true
+>
+NO_INSTRUMENT
+constexpr size_t arg_size(const T& arg);
+
+template<typename T,
+    std::enable_if_t<std::is_array_v<T>, bool> = true
+>
+NO_INSTRUMENT
+constexpr size_t arg_size(const T& arg);
+
+//
+
+template<typename T,
+    std::enable_if_t<reflection::is_reflected_v<remove_cvref_t<T>>, bool>
 >
 NO_INSTRUMENT
 constexpr size_t arg_size(const T& arg)
@@ -110,7 +143,7 @@ constexpr size_t arg_size(const T& arg)
 }
 
 template<typename T,
-    std::enable_if_t<is_pair_v<T>, bool> = true
+    std::enable_if_t<is_pair_v<T>, bool>
 >
 NO_INSTRUMENT
 constexpr size_t arg_size(const T& arg)
@@ -119,9 +152,7 @@ constexpr size_t arg_size(const T& arg)
 }
 
 template<typename T,
-    std::enable_if_t<
-        is_iterable_v<remove_cvref_t<T>>
-    , bool> = true
+    std::enable_if_t<is_iterable_v<remove_cvref_t<T>>, bool>
 >
 NO_INSTRUMENT
 constexpr size_t arg_size(const T& arg)
@@ -140,7 +171,7 @@ constexpr size_t arg_size(const T& arg)
 }
 
 template<typename T,
-    std::enable_if_t<std::is_array_v<T>, bool> = true
+    std::enable_if_t<std::is_array_v<T>, bool>
 >
 NO_INSTRUMENT
 constexpr size_t arg_size(const T& arg)
@@ -148,7 +179,6 @@ constexpr size_t arg_size(const T& arg)
     // [] arrays can't have 0 length
     return std::extent<T>::value * arg_size(arg[0]);
 }
-
 
 template<typename... Args>
 NO_INSTRUMENT
@@ -160,6 +190,7 @@ inline constexpr size_t payload_size(Args&&... args)
         return (arg_size(std::forward<Args>(args)) + ...);
 }
 
+// Primitives
 NO_INSTRUMENT
 inline void serialize_arg(uint8_t*& buf, const char* arg)
 {
@@ -187,8 +218,10 @@ inline void serialize_arg(uint8_t*& buf, const std::string_view& arg)
 }
 
 template<typename T,
-    std::enable_if_t<std::is_arithmetic_v<std::remove_reference_t<T>> ||
-                     std::is_enum_v<std::remove_reference_t<T>>, bool> = true
+    std::enable_if_t<
+        std::is_arithmetic_v<std::remove_reference_t<T>> ||
+        std::is_enum_v<std::remove_reference_t<T>>,
+    bool> = true
 >
 NO_INSTRUMENT
 inline void serialize_arg(uint8_t*& buf, const T arg)
@@ -197,8 +230,34 @@ inline void serialize_arg(uint8_t*& buf, const T arg)
     buf += sizeof(arg);
 }
 
+
+// Forward Declarations
 template<typename T,
     std::enable_if_t<reflection::is_reflected_v<remove_cvref_t<T>>, bool> = true
+>
+NO_INSTRUMENT
+inline constexpr void serialize_arg(uint8_t*& buf, const T& arg);
+
+template<typename T,
+    std::enable_if_t<is_pair_v<T>, bool> = true
+>
+NO_INSTRUMENT
+inline constexpr void serialize_arg(uint8_t*& buf, const T& arg);
+
+// TODO: support [] static arrays
+template<typename T,
+    std::enable_if_t<is_iterable_v<remove_cvref_t<T>> ||
+        is_std_array_v<remove_cvref_t<T>> ||
+        std::is_array_v<T>
+    , bool> = true
+>
+NO_INSTRUMENT
+inline constexpr void serialize_arg(uint8_t*& buf, const T& arg);
+
+//
+
+template<typename T,
+    std::enable_if_t<reflection::is_reflected_v<remove_cvref_t<T>>, bool>
 >
 NO_INSTRUMENT
 inline constexpr void serialize_arg(uint8_t*& buf, const T& arg)
@@ -210,7 +269,7 @@ inline constexpr void serialize_arg(uint8_t*& buf, const T& arg)
 }
 
 template<typename T,
-    std::enable_if_t<is_pair_v<T>, bool> = true
+    std::enable_if_t<is_pair_v<T>, bool>
 >
 NO_INSTRUMENT
 inline constexpr void serialize_arg(uint8_t*& buf, const T& arg)
@@ -224,7 +283,7 @@ template<typename T,
     std::enable_if_t<is_iterable_v<remove_cvref_t<T>> ||
         is_std_array_v<remove_cvref_t<T>> ||
         std::is_array_v<T>
-    , bool> = true
+    , bool>
 >
 NO_INSTRUMENT
 inline constexpr void serialize_arg(uint8_t*& buf, const T& arg)
