@@ -99,7 +99,7 @@ struct MetaDataNode
         static_assert(argNames.size() == sizeof...(Args), "number of args must match format string");
 
         // Add arg names and types for event definition
-        (data.fieldTypes.emplace_back(reflection::makeReflectionType<Args>()), ...);
+        (data.fieldTypes.emplace_back(reflection::make_reflection_type<Args>()), ...);
         for (const auto& argName : argNames)
             add_to_vector(data.fieldNames, argName);
         

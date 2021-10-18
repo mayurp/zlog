@@ -197,10 +197,8 @@ public:
 template<typename T>
 using serialised_type_t = typename serialised_type<T>::type;
 
-
-// TODO: move to reflection?
 template<typename T>
-reflection::Type makeReflectionType()
+reflection::Type make_reflection_type()
 {
     using U = serialised_type_t<T>;
     static constexpr std::string_view name = type_name_v<U>;
@@ -230,7 +228,7 @@ reflection::Type makeReflectionType()
         reflection::Array array;
         array.isDynamic = false;
         using VT = serialised_type_t<typename U::value_type>;
-        array.valueType = makeReflectionType<VT>();
+        array.valueType = make_reflection_type<VT>();
         array.size = array_size<U>::size;
         return array;
     }
@@ -240,7 +238,7 @@ reflection::Type makeReflectionType()
         reflection::Array array;
         array.isDynamic = false;
         using VT = serialised_type_t<std::remove_all_extents_t<U>>;
-        array.valueType = makeReflectionType<VT>();
+        array.valueType = make_reflection_type<VT>();
         array.size = std::extent_v<U>;
         return array;
     }
@@ -250,8 +248,8 @@ reflection::Type makeReflectionType()
         reflection::Map map;
         using KT = serialised_type_t<typename U::key_type>;
         using VT = serialised_type_t<typename U::mapped_type>;
-        map.keyType = makeReflectionType<KT>();
-        map.valueType = makeReflectionType<VT>();
+        map.keyType = make_reflection_type<KT>();
+        map.valueType = make_reflection_type<VT>();
         return map;
     }
     // dynamic arrays, lists etc
@@ -260,7 +258,7 @@ reflection::Type makeReflectionType()
         reflection::Array array;
         array.isDynamic = true;
         using VT = serialised_type_t<typename U::value_type>;
-        array.valueType = makeReflectionType<VT>();
+        array.valueType = make_reflection_type<VT>();
         return array;
     }
     else if constexpr (is_pair_v<U>)
@@ -268,8 +266,8 @@ reflection::Type makeReflectionType()
         reflection::Tuple tuple;
         using T1 = serialised_type_t<typename U::first_type>;
         using T2 = serialised_type_t<typename U::second_type>;
-        tuple.types.emplace_back(makeReflectionType<T1>());
-        tuple.types.emplace_back(makeReflectionType<T2>());
+        tuple.types.emplace_back(make_reflection_type<T1>());
+        tuple.types.emplace_back(make_reflection_type<T2>());
         return tuple;
     }
     else
@@ -292,7 +290,7 @@ struct RegisterType
         reflection::for_each<T>([&](const std::string_view& memberName, auto memberInfo)
         {
             using ValueType = typename decltype(memberInfo)::ValueType;
-            type.fields.push_back({memberName, makeReflectionType<ValueType>()});
+            type.fields.push_back({memberName, make_reflection_type<ValueType>()});
         });
         get_type_registry().push_back(type);
     }
