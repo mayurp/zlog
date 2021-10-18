@@ -449,25 +449,18 @@ std::string generate_ctf_metadata()
 
 }
 
-#define _GNU_SOURCE
-#include <dlfcn.h>
-
 extern "C"
 {
+
+// For profiling and flamegraphs
+// TODO: don't hardcode event ids
 
 NO_INSTRUMENT
 void __cyg_profile_func_enter(void *this_fn, void *call_site)
 {
-    // TODO: don't hardcode event id
+    // TODO: don't hardcode event ids
     if (barectf::has_default_context())
         barectf::log_event(1, (uint64_t)this_fn, (uint64_t)call_site);
-//
-//    Dl_info info;
-//    if (dladdr(this_fn, &info))
-//        printf("%p %s\n",
-//               this_fn,
-//               //info.dli_fname ? info.dli_fname : "?",
-//               info.dli_sname ? info.dli_sname : "?");
 }
 
 NO_INSTRUMENT
