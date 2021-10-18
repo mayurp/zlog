@@ -45,8 +45,10 @@ struct X
     
     int a = 0;
     bool b = true;
+    std::map<int, int
+    > map;
 };
-REFLECT_WITH_FORMATTER(X, a, b)
+REFLECT_WITH_FORMATTER(X, a, b, map)
 
 bool operator<(const X& lhs, const X& rhs)
 {
@@ -80,13 +82,44 @@ struct SomeTask
     static constexpr std::array keywords = {"12", "lokok"};
 };
 
-template<typename T, typename = std::enable_if_t<reflection::is_reflected_v<T>>>
+
+// fwd decls
+template<typename T, std::enable_if_t<is_iterable_v<T> && !is_string_v<T>, bool> = true>
+std::ostream& operator<<(std::ostream& os, const T& t);
+
+template<typename T, std::enable_if_t<is_pair_v<T>, bool> = true>
+std::ostream& operator<<(std::ostream& os, const T& t);
+
+template<typename T, std::enable_if_t<reflection::is_reflected_v<T>, bool> = true>
+std::ostream& operator<<(std::ostream& os, const T& t);
+
+
+template<typename T, std::enable_if_t<is_iterable_v<T> && !is_string_v<T>, bool>>
 std::ostream& operator<<(std::ostream& os, const T& t)
 {
-    os << "{\n";
+    os << "{";
+    for (const auto& e : t)
+    {
+        os << e << ", ";
+    }
+    os << "}";
+    return os;
+}
+
+template<typename T, std::enable_if_t<is_pair_v<T>, bool>>
+std::ostream& operator<<(std::ostream& os, const T& t)
+{
+    os << "{" << t.first << ", " << t.second << "}";
+    return os;
+}
+
+template<typename T, std::enable_if_t<reflection::is_reflected_v<T>, bool>>
+std::ostream& operator<<(std::ostream& os, const T& t)
+{
+    os << "{";
     reflection::for_each(t, [&](std::string_view name, const auto& v)
     {
-        os << name << ": " << v << "\n";
+        os << name << ": " << v << ", ";
     });
     os << "}";
     return os;
@@ -143,9 +176,9 @@ void test_format()
     Config config("abc", 22, true);
 
     std::cout << "---\n";
-    std::cout << fmt::format(
-        FMT_STRING("Some Vec3: {}\n some X: {}\n some vector: {}\n some Config: {}\n"),
-        Vec3{3, 4, 5}, x, xs, config);
+//    std::cout << fmt::format(
+//        FMT_STRING("Some Vec3: {}\n some X: {}\n some vector: {}\n some Config: {}\n"),
+//        x, 3, 3, 4);
     std::cout << "---\n";
 }
 
@@ -198,16 +231,6 @@ void test_logs()
     
     std::cout << "\n------- log calls end --------\n";
     std::cout << "\n------- testLogs --------\n";
-}
-
-template<typename T>
-void check(T&& arg)
-{
-    using _T = std::remove_cv_t<std::remove_reference_t<T>>;
-    using ST = reflection::serialised_type_t<std::remove_all_extents_t<_T>>;
-    std::cout << "\n\n";
-    std::cout << type_name_v<_T> << "\n\n";
-    
 }
 
 void test_barectf()
@@ -265,6 +288,7 @@ void test_barectf()
     //LOGD("Some colour : {colour}", c);
     std::array xs_a =  {X(1), X(2) , X(3)};
     std::vector<X> xs_v =  {X(1), X(2) , X(3)};
+    //xs_v[0].map.insert({112233, "some entry"});
     std::list<X> xs_l =  {X(1), X(2) , X(3)};
     const X xs_sa[3] = {X(1), X(2) , X(3)};
     std::set<X> xs_s =  {X(1), X(2) , X(3)};
@@ -286,8 +310,6 @@ void test_barectf()
 
     std::cout << "log end\n";
 
-    check(xs_sa);
-    
     //thread.join();
     
    // std::array arry = {"1", "11"};
