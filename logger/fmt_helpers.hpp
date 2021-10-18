@@ -34,7 +34,7 @@ constexpr void append(char arr[], int& dst, const std::string_view& str)
 }
 
 template <typename T>
-constexpr auto makeFormatString()
+constexpr auto make_format_string()
 {
     auto makeString = [](char arr[])
     {
@@ -64,7 +64,7 @@ constexpr auto makeFormatString()
 }
 
 template <typename T>
-constexpr auto makeTupleFormatString()
+constexpr auto make_tuple_format_string()
 {
     auto makeString = [](char arr[])
     {
@@ -99,7 +99,7 @@ struct ReflectionFormatter : fmt::formatter<std::string>
     auto makeFormatter(const T& t, fmt::format_context& ctx, std::index_sequence<Is...>)
     {
         using R = reflection::reflect_members<reflection::remove_cvref_t<T>>;
-        static constexpr auto fstr = makeFormatString<T>();
+        static constexpr auto fstr = make_format_string<T>();
         return formatter<std::string>::format(
                                 fmt::format(FMT_STRING(fstr.view()), R::template get<Is>(t)...),
                                 ctx);
@@ -129,7 +129,7 @@ struct fmt::formatter<T, Char, typename std::enable_if_t<is_tuple_v<T>>> : fmt::
     template <std::size_t ...Is>
     auto makeFormatter(const T& t, fmt::format_context& ctx, std::index_sequence<Is...>)
     {
-        static constexpr auto fstr = fmt_helpers::makeTupleFormatString<T>();
+        static constexpr auto fstr = fmt_helpers::make_tuple_format_string<T>();
         return formatter<std::string>::format(
                                 fmt::format(FMT_STRING(fstr.view()), std::get<Is>(t)...),
                                 ctx);

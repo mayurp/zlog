@@ -254,17 +254,17 @@ typealias integer {
     return ss.str();
 }
 
-// Helper to visit reflection::type variant
+// Visit reflection::Type variant and output TDSL
 // Final ";\n" is omiitted to support recursion
-struct struct_visitor
+struct Visitor
 {
-    struct_visitor(std::ostream& ss_, int indentCount_, const std::string_view& fieldName_)
+    Visitor(std::ostream& ss_, int indentCount_, const std::string_view& fieldName_)
         : ss(ss_), indentCount(indentCount_), fieldName(fieldName_)
     {}
     
-    struct_visitor indented_visitor(const std::string_view& fieldName_ = "") const
+    Visitor indented_visitor(const std::string_view& fieldName_ = "") const
     {
-        return struct_visitor(ss, indentCount + 4, fieldName_);
+        return Visitor(ss, indentCount + 4, fieldName_);
     }
 
     void operator()(const reflection::Primitive& t) const
@@ -345,7 +345,7 @@ static std::string ctf_custom_types()
 {
     using namespace reflection;
     std::ostringstream ss;
-    for (const auto& type: reflection::getTypeRegistry())
+    for (const auto& type: reflection::get_type_registry())
     {
         std::visit([&](auto&& t)
         {
@@ -355,7 +355,7 @@ static std::string ctf_custom_types()
                 ss << "typealias struct {\n";
                 for (const auto& field: t.fields)
                 {
-                    std::visit(struct_visitor(ss, 4, field.name), field.type);
+                    std::visit(Visitor(ss, 4, field.name), field.type);
                     ss << ";\n";
                 }
                 ss << "} := " << t.name << ";\n\n";
@@ -406,11 +406,8 @@ std::string generate_ctf_metadata()
     ss << ctf_basic_types() << "\n";
     ss << ctf_custom_types() << "\n";
 
-    for (const auto& metaData : logging::getRegistry())
+    for (const auto& metaData : logging::get_registry())
     {
-        if (metaData.macroData.line < 200)
-            continue;
-
         // event name is identifier for callsite block so need to ensure it's
         // unique by including the eventId
         // add format string here as workaround for tooling not supporting this as a separate field
@@ -432,7 +429,7 @@ std::string generate_ctf_metadata()
         {
             const reflection::Type& type = metaData.fieldTypes[i];
             const std::string_view& fieldName = metaData.fieldNames[i];
-            std::visit(struct_visitor(ss, 8, fieldName), type);
+            std::visit(Visitor(ss, 8, fieldName), type);
             ss << ";\n";
         }
         ss << "    } align(1);\n";
@@ -446,6 +443,7 @@ std::string generate_ctf_metadata()
         ss << "    func = \"" << macroData.function << "\";\n";
         ss << "};\n\n";
     }
+
     return ss.str();
 }
 

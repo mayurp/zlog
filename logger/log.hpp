@@ -58,11 +58,11 @@ struct LogMetaData
 
 // TODO put this somewhere more obvious
 // 1 and 2 reserved for ctf cyg_profile
-inline int eventIdSeq = 3;
+inline int event_id_seq = 3;
 
-std::vector<LogMetaData>& getRegistry();
-void addToRegistry(const LogMetaData& data);
-void addToVector(std::vector<std::string_view>& vec, const std::string_view& str);
+std::vector<LogMetaData>& get_registry();
+void add_to_registry(const LogMetaData& data);
+void add_to_vector(std::vector<std::string_view>& vec, const std::string_view& str);
 
 // transform type to one suitable for serialisation
 // e.g int -> int32_t
@@ -85,12 +85,12 @@ using serialised_type_t = typename serialised_type<T>::type;
 template <LogLevel level, typename MacroData, typename... Args>
 struct MetaDataNode
 {
-    MetaDataNode() : eventId(eventIdSeq++)
+    MetaDataNode() : eventId(event_id_seq++)
     {
         static constexpr LogMacroData macroData = MacroData{}();
         LogMetaData data;
         data.eventId = eventId;
-        data.eventName = funcName(macroData.function);
+        data.eventName = type_helper::func_name(macroData.function);
         data.level = level;
         data.macroData = macroData;
         
@@ -101,9 +101,9 @@ struct MetaDataNode
         // Add arg names and types for event definition
         (data.fieldTypes.emplace_back(reflection::makeReflectionType<Args>()), ...);
         for (const auto& argName : argNames)
-            addToVector(data.fieldNames, argName);
+            add_to_vector(data.fieldNames, argName);
         
-        addToRegistry(data);
+        add_to_registry(data);
     }
 
     int32_t eventId;
@@ -113,7 +113,7 @@ template<LogLevel level, typename MacroData, typename... Args>
 inline MetaDataNode<level, MacroData, Args...> meta_data_node{};
 
 template <LogLevel level, typename MacroData, typename... Args>
-void logFunc(Args&&... args)
+void log_func(Args&&... args)
 {
     static const auto metaData = meta_data_node<level, MacroData, Args...>;
     static const int eventId = metaData.eventId;
@@ -144,7 +144,7 @@ do                                                              \
         }                                                       \
     };                                                          \
                                                                 \
-    logFunc<level, MetaData>(__VA_ARGS__);                      \
+    log_func<level, MetaData>(__VA_ARGS__);                      \
 } while(false)                                                  \
 
 #define LOGC(format, ...) LOG(LogLevel::Critical, format, __VA_ARGS__)

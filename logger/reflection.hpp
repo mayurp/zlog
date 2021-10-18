@@ -125,7 +125,8 @@ struct Array;
 struct Map;
 struct Tuple;
 
-template <typename T> struct recursive_wrapper
+template<typename T>
+struct recursive_wrapper
 {
   // construct from an existing object
   //recursive_wrapper(T t_) { t.emplace_back(std::move(t_)); }
@@ -176,7 +177,7 @@ struct Tuple
 
 using RegisteredType = std::variant<Clazz, Enum>;
 
-std::vector<RegisteredType>& getTypeRegistry();
+std::vector<RegisteredType>& get_type_registry();
 
 
 // transform type to one suitable for serialisation
@@ -215,7 +216,7 @@ reflection::Type makeReflectionType()
         // Only enums will get auto registered when they are used my LOG macros
         // Classes need to be explicitly registered
         // TODO: ensure enums are only registered once
-        reflection::getTypeRegistry().push_back(e);
+        reflection::get_type_registry().push_back(e);
         return e;
     }
     else if constexpr (std::is_arithmetic_v<U> || is_string_v<U>)
@@ -293,7 +294,7 @@ struct RegisterType
             using ValueType = typename decltype(memberInfo)::ValueType;
             type.fields.push_back({memberName, makeReflectionType<ValueType>()});
         });
-        getTypeRegistry().push_back(type);
+        get_type_registry().push_back(type);
     }
 };
 

@@ -92,7 +92,7 @@ std::ostream& operator<<(std::ostream& os, const T& t)
     return os;
 }
 
-void testReflection()
+void test_reflection()
 {
     std::cout << "\n------- testReflection --------\n";
 
@@ -115,12 +115,12 @@ void testReflection()
 
 }
 
-void testTypeRegistry()
+void test_type_registry()
 {
     // TODO FIX!
 //    using namespace reflection;
 //    std::cout << "\n------- testTypeRegistry --------\n";
-//    for (const auto& type: reflection::getTypeRegistry())
+//    for (const auto& type: reflection::get_type_registry())
 //    {
 //        if (const Clazz* clazz = std::get_if<Clazz>(&type))
 //        {
@@ -136,7 +136,7 @@ void testTypeRegistry()
 
 }
 
-void testFormat()
+void test_format()
 {
     X x(1);
     std::vector<X> xs = {X(1), X(2) , X(3)};
@@ -149,10 +149,10 @@ void testFormat()
     std::cout << "---\n";
 }
 
-void testLogRegistry()
+void test_log_registry()
 {
     std::cout << "Log Registry\n";
-    for (const auto& metaData : logging::getRegistry())
+    for (const auto& metaData : logging::get_registry())
     {
         const logging::LogMacroData& macroData = metaData.macroData;
         std::cout << "-------------------------\n";
@@ -166,7 +166,7 @@ void testLogRegistry()
     std::cout << "\n";
 }
 
-void testLogs()
+void test_logs()
 {
     std::cout << "\n------- testLogs --------\n";
 
@@ -210,7 +210,7 @@ void check(T&& arg)
     
 }
 
-void testBareCtf()
+void test_barectf()
 {
     /*
     std::string s1 = "hello_s";
@@ -316,7 +316,7 @@ int main()
     testFormat();
     testLogs();
 */
-    testBareCtf();
+    test_barectf();
     
     return 0;
 }

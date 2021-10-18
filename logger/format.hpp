@@ -46,8 +46,8 @@ private:
         return count;
     }
 
-    // TODO validate argNmme?
-    static constexpr std::string_view getArgName(const std::string_view& argStr)
+    // TODO validate argStr?
+    static constexpr std::string_view get_arg_name(const std::string_view& argStr)
     {
         const size_t colon_pos = argStr.find(':');
         return argStr.substr(0, colon_pos);
@@ -91,7 +91,7 @@ private:
                 if (argLen < 1)
                     throw std::runtime_error("must specify an arg name");
                 const std::string_view argStr(&(*it), argLen);
-                const std::string_view argName = getArgName(argStr);
+                const std::string_view argName = get_arg_name(argStr);
                 const std::string_view argFormatting = argStr.substr(argName.size());
                 argNames[argIndex++] = argName;
                 strippedFormat.data[dst++] = '{';

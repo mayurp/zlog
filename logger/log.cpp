@@ -21,18 +21,18 @@
 namespace logging
 {
 
-std::vector<LogMetaData>& getRegistry()
+std::vector<LogMetaData>& get_registry()
 {
     static std::vector<LogMetaData> registry;
     return registry;
 }
 
-void addToRegistry(const LogMetaData& data)
+void add_to_registry(const LogMetaData& data)
 {
-    getRegistry().emplace_back(data);
+    get_registry().emplace_back(data);
 }
 
-void addToVector(std::vector<std::string_view>& vec, const std::string_view& str)
+void add_to_vector(std::vector<std::string_view>& vec, const std::string_view& str)
 {
     vec.emplace_back(str);
 }

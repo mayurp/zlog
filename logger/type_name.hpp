@@ -75,21 +75,25 @@ TYPE_NAME_VALUE(char*, "string")
 TYPE_NAME_VALUE(const char*, "string")
 
 
-constexpr std::string_view className(const std::string_view& prettyFuntion)
+namespace type_helper
 {
-    const size_t colonsPos = prettyFuntion.rfind("::");
+
+constexpr std::string_view class_name(const std::string_view& prettyFunction)
+{
+    const size_t colonsPos = prettyFunction.rfind("::");
     if (colonsPos == std::string_view::npos)
         return "";
-    return prettyFuntion.substr(0, colonsPos);
+    return prettyFunction.substr(0, colonsPos);
 }
 
-constexpr std::string_view funcName(const std::string_view& prettyFuntion)
+constexpr std::string_view func_name(const std::string_view& prettyFunction)
 {
-    const size_t colonsPos = prettyFuntion.rfind("::");
+    const size_t colonsPos = prettyFunction.rfind("::");
     if (colonsPos == std::string_view::npos)
-        return prettyFuntion;
-    return prettyFuntion.substr(colonsPos+2);
+        return prettyFunction;
+    return prettyFunction.substr(colonsPos+2);
 }
 
+}
 
 #endif /* type_name_h */
