@@ -6,13 +6,13 @@
 //  Copyright © 2021 Mayur Patel. All rights reserved.
 //
 
-#define CATCH_CONFIG_MAIN
-
-#include <iostream>
-#include <tuple>
-#include <vector>
-#include "reflection.hpp"
 #include "ctf_writer.hpp"
+
+//#define CATCH_CONFIG_MAIN
+#define CATCH_CONFIG_RUNNER
+#include <catch2/catch.hpp>
+
+
 
 
 // TODO make unit test

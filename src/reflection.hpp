@@ -9,14 +9,14 @@
 #ifndef reflection_hpp
 #define reflection_hpp
 
-#include "map_macro.hpp"
 #include "type_name.hpp"
 #include "type_traits.hpp"
 
 #include "magic_enum.hpp"
+#include "map_macro.hpp"
 
-#include <vector>
 #include <variant>
+#include <vector>
 
 
 namespace reflection

@@ -8,6 +8,10 @@
 #ifndef ctstring_hpp
 #define ctstring_hpp
 
+#include <array>
+#include <string_view>
+
+
 // statically allocated string - not null terminated
 template <size_t N>
 struct FixedString

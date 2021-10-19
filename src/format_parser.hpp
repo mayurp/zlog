@@ -9,9 +9,10 @@
 #ifndef format_h
 #define format_h
 
-
-#include <string_view>
 #include "ctstring.hpp"
+
+#include <array>
+#include <string_view>
 
 
 // Compile time parsing of log format string to:

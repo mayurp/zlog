@@ -1,25 +1,22 @@
+#ifdef USE_FMT_LOGGING
+#include "fmt_helpers.hpp"
+#endif
 #include "log.hpp"
 #include "reflection.hpp"
 
 #include <array>
-#include <type_traits>
-#include <set>
-#include <unordered_set>
+#include <fstream>
+#include <iostream>
 #include <list>
 #include <map>
-#include <string_view>
-#include <string>
-#include <iostream>
-#include <fstream>
 #include <ostream>
+#include <set>
 #include <sstream>
+#include <string>
+#include <string_view>
 #include <thread>
-
-#include "ctf_writer.hpp"
-
-#ifdef USE_FMT_LOGGING
-#include "fmt_helpers.hpp"
-#endif
+#include <type_traits>
+#include <unordered_set>
 
 
 enum class Colour
@@ -33,7 +30,7 @@ struct Vec3
 {
     float x, y, z;
 };
-REFLECT_WITH_FORMATTER(Vec3, x, y, z)
+REFLECT(Vec3, x, y, z)
 
 struct X
 {
@@ -48,7 +45,7 @@ struct X
     std::map<int, int
     > map;
 };
-REFLECT_WITH_FORMATTER(X, a, b, map)
+REFLECT(X, a, b, map)
 
 bool operator<(const X& lhs, const X& rhs)
 {
@@ -74,7 +71,7 @@ public:
     // TODO how do we get rid of this?
     template <std::size_t I> friend decltype(auto) get(const Config&);
 };
-REFLECT_WITH_FORMATTER(Config, name, id, x, calc)
+REFLECT(Config, name, id, x, calc)
 
 
 struct SomeTask

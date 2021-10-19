@@ -10,18 +10,19 @@
 
 #include "ctf_writer.hpp"
 #include "format_parser.hpp"
+#include "reflection.hpp"
 #include "type_name.hpp"
 #include "type_traits.hpp"
+#ifdef USE_FMT_LOGGING
+#include "fmt_helpers.hpp"
+#endif
 
-#include <array>
+
+#include "magic_enum.hpp"
+
 #include <string_view>
 #include <type_traits>
 #include <vector>
-
-
-#include "fmt_helpers.hpp"
-
-#include "magic_enum.hpp"
 
 
 enum class LogLevel
