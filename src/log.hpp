@@ -8,15 +8,15 @@
 #ifndef log_hpp
 #define log_hpp
 
-#include "ctf/ctf_logger.hpp"
+#include "ctf_writer.hpp"
 #include "format.hpp"
 #include "type_name.hpp"
 #include "type_traits.hpp"
+
 #include <array>
 #include <string_view>
 #include <type_traits>
 #include <vector>
-
 
 #define FMT_ENFORCE_COMPILE_STRING
 #include <fmt/format.h>

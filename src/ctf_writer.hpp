@@ -5,19 +5,17 @@
 //  Created by Mayur Patel on 28/08/2021.
 //
 
-#ifndef logger_hpp
-#define logger_hpp
+#ifndef ctf_writer_hpp
+#define ctf_writer_hpp
 
 
 #include "barectf.h"
-#include "../reflection.hpp"
-#include "../type_traits.hpp"
+#include "reflection.hpp"
+#include "type_traits.hpp"
 
 #include <filesystem>
 #include <string>
 #include <type_traits>
-
-#include <iostream>
 
 
 struct barectf_platform_linux_fs_ctx;
@@ -394,4 +392,4 @@ void log_event(uint32_t event_id, Args&&... args)
 
 }
 
-#endif /* logger_hpp */
+#endif /* ctf_writer_hpp */

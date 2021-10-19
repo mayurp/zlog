@@ -5,9 +5,9 @@
 //  Created by Mayur Patel on 09/09/2021.
 //
 
-#include "ctf_logger.hpp"
+#include "ctf_writer.hpp"
 #include "barectf-platform-linux-fs.h"
-#include "../log.hpp"
+#include "log.hpp"
 
 #include <exception>
 #include <map>

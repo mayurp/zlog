@@ -1,13 +1,13 @@
 //
 //  reflection.hpp
-//  template_fun
+//
 //
 //  Created by Mayur Patel on 27/03/2021.
 //  Copyright © 2021 Mayur Patel. All rights reserved.
 //
 
-#ifndef reflection_h
-#define reflection_h
+#ifndef reflection_hpp
+#define reflection_hpp
 
 #include "map_macro.hpp"
 #include "type_name.hpp"
@@ -319,4 +319,4 @@ struct reflect_members<STRUCT_NAME>\
 RegisterType<STRUCT_NAME> reg_##STRUCT_NAME ;\
 }\
 
-#endif /* reflection_h */
+#endif /* reflection_hpp */

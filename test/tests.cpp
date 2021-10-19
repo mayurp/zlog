@@ -1,6 +1,6 @@
 //
 //  tests.cpp
-//  template_fun
+//
 //
 //  Created by Mayur Patel on 27/03/2021.
 //  Copyright © 2021 Mayur Patel. All rights reserved.
@@ -12,7 +12,7 @@
 #include <tuple>
 #include <vector>
 #include "reflection.hpp"
-#include "ctf/ctf_logger.hpp"
+#include "ctf_writer.hpp"
 
 
 // TODO make unit test

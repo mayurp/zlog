@@ -15,7 +15,7 @@
 #include <sstream>
 #include <thread>
 
-#include "ctf/ctf_logger.hpp"
+#include "ctf_writer.hpp"
 
 #define FMT_ENFORCE_COMPILE_STRING
 #include <fmt/format.h>

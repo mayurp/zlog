@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		77C7595126DAF6260012C73A /* barectf-platform-linux-fs.c in Sources */ = {isa = PBXBuildFile; fileRef = 77C7594E26DAF6260012C73A /* barectf-platform-linux-fs.c */; };
 		77C7595226DAF6260012C73A /* barectf.c in Sources */ = {isa = PBXBuildFile; fileRef = 77C7594F26DAF6260012C73A /* barectf.c */; };
-		77C7596126EA9F1D0012C73A /* ctf_logger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 77C7596026EA9F1C0012C73A /* ctf_logger.cpp */; };
+		77C7596126EA9F1D0012C73A /* ctf_writer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 77C7596026EA9F1C0012C73A /* ctf_writer.cpp */; };
 		77CE34C82627ABF400B70B56 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 77CE34C72627ABF400B70B56 /* main.cpp */; };
 		77CE34DE2627ACAD00B70B56 /* reflection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 77CE34D02627ACAD00B70B56 /* reflection.cpp */; };
 		77CE34E02627ACAD00B70B56 /* tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 77CE34D72627ACAD00B70B56 /* tests.cpp */; };
@@ -35,8 +35,8 @@
 		77C7594E26DAF6260012C73A /* barectf-platform-linux-fs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "barectf-platform-linux-fs.c"; sourceTree = "<group>"; };
 		77C7594F26DAF6260012C73A /* barectf.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = barectf.c; sourceTree = "<group>"; };
 		77C7595026DAF6260012C73A /* barectf-platform-linux-fs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "barectf-platform-linux-fs.h"; sourceTree = "<group>"; };
-		77C7595D26EA63DC0012C73A /* ctf_logger.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ctf_logger.hpp; sourceTree = "<group>"; };
-		77C7596026EA9F1C0012C73A /* ctf_logger.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ctf_logger.cpp; sourceTree = "<group>"; };
+		77C7595D26EA63DC0012C73A /* ctf_writer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ctf_writer.hpp; sourceTree = "<group>"; };
+		77C7596026EA9F1C0012C73A /* ctf_writer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ctf_writer.cpp; sourceTree = "<group>"; };
 		77C7596326EBF6500012C73A /* ctstring.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ctstring.hpp; sourceTree = "<group>"; };
 		77C7596526ED48820012C73A /* type_traits.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = type_traits.hpp; sourceTree = "<group>"; };
 		77CE34C42627ABF400B70B56 /* logger */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = logger; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -69,7 +69,10 @@
 		77826A48271E11BE00804106 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				77C7594C26DAF6260012C73A /* ctf */,
+				77C75972270075AF0012C73A /* barectf */,
+				77C7596326EBF6500012C73A /* ctstring.hpp */,
+				77C7595D26EA63DC0012C73A /* ctf_writer.hpp */,
+				77C7596026EA9F1C0012C73A /* ctf_writer.cpp */,
 				77CE34D22627ACAD00B70B56 /* fmt_helpers.hpp */,
 				77CE34D12627ACAD00B70B56 /* format.hpp */,
 				77CE34DC2627ACAD00B70B56 /* log.cpp */,
@@ -78,7 +81,6 @@
 				77CE34D02627ACAD00B70B56 /* reflection.cpp */,
 				77CE34DB2627ACAD00B70B56 /* reflection.hpp */,
 				77CE34D92627ACAD00B70B56 /* type_name.hpp */,
-				77C7596326EBF6500012C73A /* ctstring.hpp */,
 				77C7596526ED48820012C73A /* type_traits.hpp */,
 			);
 			path = src;
@@ -92,16 +94,6 @@
 				77CE34FB262A651F00B70B56 /* test_logging.cpp */,
 			);
 			path = test;
-			sourceTree = "<group>";
-		};
-		77C7594C26DAF6260012C73A /* ctf */ = {
-			isa = PBXGroup;
-			children = (
-				77C75972270075AF0012C73A /* barectf */,
-				77C7595D26EA63DC0012C73A /* ctf_logger.hpp */,
-				77C7596026EA9F1C0012C73A /* ctf_logger.cpp */,
-			);
-			path = ctf;
 			sourceTree = "<group>";
 		};
 		77C75972270075AF0012C73A /* barectf */ = {
@@ -200,7 +192,7 @@
 				77C7595226DAF6260012C73A /* barectf.c in Sources */,
 				77CE34FC262A651F00B70B56 /* test_logging.cpp in Sources */,
 				77CE34DE2627ACAD00B70B56 /* reflection.cpp in Sources */,
-				77C7596126EA9F1D0012C73A /* ctf_logger.cpp in Sources */,
+				77C7596126EA9F1D0012C73A /* ctf_writer.cpp in Sources */,
 				77C7595126DAF6260012C73A /* barectf-platform-linux-fs.c in Sources */,
 				77CE34E02627ACAD00B70B56 /* tests.cpp in Sources */,
 				77CE34C82627ABF400B70B56 /* main.cpp in Sources */,
