@@ -42,7 +42,7 @@
 		77CE34C42627ABF400B70B56 /* logger */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = logger; sourceTree = BUILT_PRODUCTS_DIR; };
 		77CE34C72627ABF400B70B56 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		77CE34D02627ACAD00B70B56 /* reflection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = reflection.cpp; sourceTree = "<group>"; };
-		77CE34D12627ACAD00B70B56 /* format.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = format.hpp; sourceTree = "<group>"; };
+		77CE34D12627ACAD00B70B56 /* format_parser.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = format_parser.hpp; sourceTree = "<group>"; };
 		77CE34D22627ACAD00B70B56 /* fmt_helpers.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = fmt_helpers.hpp; sourceTree = "<group>"; };
 		77CE34D32627ACAD00B70B56 /* log.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = log.hpp; sourceTree = "<group>"; };
 		77CE34D42627ACAD00B70B56 /* map_macro.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = map_macro.hpp; sourceTree = "<group>"; };
@@ -74,7 +74,7 @@
 				77C7595D26EA63DC0012C73A /* ctf_writer.hpp */,
 				77C7596026EA9F1C0012C73A /* ctf_writer.cpp */,
 				77CE34D22627ACAD00B70B56 /* fmt_helpers.hpp */,
-				77CE34D12627ACAD00B70B56 /* format.hpp */,
+				77CE34D12627ACAD00B70B56 /* format_parser.hpp */,
 				77CE34DC2627ACAD00B70B56 /* log.cpp */,
 				77CE34D32627ACAD00B70B56 /* log.hpp */,
 				77CE34D42627ACAD00B70B56 /* map_macro.hpp */,

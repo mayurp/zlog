@@ -9,7 +9,7 @@
 #define log_hpp
 
 #include "ctf_writer.hpp"
-#include "format.hpp"
+#include "format_parser.hpp"
 #include "type_name.hpp"
 #include "type_traits.hpp"
 
@@ -18,8 +18,7 @@
 #include <type_traits>
 #include <vector>
 
-#define FMT_ENFORCE_COMPILE_STRING
-#include <fmt/format.h>
+
 #include "fmt_helpers.hpp"
 
 #include "magic_enum.hpp"
@@ -121,9 +120,12 @@ void log_func(Args&&... args)
     static constexpr std::string_view parsedFormat = ParseFormatString<format>::format;
 
     barectf::log_event(eventId, std::forward<Args>(args)...);
-    // TODO: make this work again
-    //if constexpr (level <= LogLevel::Informational)
-    //    console << fmt::format(FMT_STRING(parsedFormat), std::forward<Args>(args)...) << "\n";
+
+#ifdef USE_FMT_LOGGING
+    // TODO: make this work again and use same timestamp as barectf
+    if constexpr (level <= LogLevel::Informational)
+        std::cout << fmt::format(FMT_STRING(parsedFormat), std::forward<Args>(args)...) << std::endl;
+#endif
 }
 
 #ifdef _MSC_VER

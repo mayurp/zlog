@@ -17,9 +17,9 @@
 
 #include "ctf_writer.hpp"
 
-#define FMT_ENFORCE_COMPILE_STRING
-#include <fmt/format.h>
+#ifdef USE_FMT_LOGGING
 #include "fmt_helpers.hpp"
+#endif
 
 
 enum class Colour
