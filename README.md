@@ -27,8 +27,33 @@ $ babeltrace2 trace_dir --fields loglevel
 
 ## How it works
 
-The format string is parsed at compiled time to extract argument names. Metadata about each LOG call is registered during static initialisation.
-This metadata is then written on startup as a CTF 1.8 TDSL file. 
+The format string is parsed at compiled time to extract argument names. Metadata about each LOG statement is then registered during static initialisation.
+This metadata is then written on startup as a CTF 1.8 TDSL file.
+
+Logging of custom types is supported via compile time reflection. Use the REFLECT macro in the same compilation as the LOG statement as below.
+Only public members are currenty supported:
+
+```cpp
+struct Vec3
+{
+    float x, y, z;    
+};
+REFLECT(Vec3, x, y, z)
+```
+
+Example using a member function:
+
+```cpp
+struct SomeType
+{
+    int a, b;
+    int sum() const
+    {
+        return a + b;
+    }
+};
+REFLECT(SomeType, sum)
+```
 
 ## What's supported
 
