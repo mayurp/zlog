@@ -14,11 +14,14 @@ LOGD("Some log message. {size}, {position}, {list}", 123, Vec3(0, -10, 5), std::
 
 Supports fmt compatible format strings using argument names as keys.
  
-Only the arguments in binary form are output by the logger. No string formatting takes place.
+Only the arguments in binary form are output by the logger. No string formatting takes place in the program.
 Log files are written in the Common Trace Format 1.8 which is an open standard for tracing used by LTTNG.
-Cross platform tools such as babeltrace2 and TraceCompass can be used to read the log files:
+Cross platform tools such as babeltrace2 and TraceCompass can be used to parse the log files and display them in a human readable format
 
-```
+For example this is how to 
+```sh
+$ babeltrace2 trace_dir --fields loglevel
+
 [16:29:11.519119000] TRACE_DEBUG (14) [18] Some log message. {size}, {position}, {list}: { size = 123, position = { x = 0, y = -10, z = 5 }, list_length = 3, list = [ [0] = 2, [1] = 4, [2] = 5 ] }
 ```
 
