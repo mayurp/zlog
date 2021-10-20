@@ -33,7 +33,10 @@ void test()
 
         std::vector<int> vec = {1, 2, 3};
         static_assert(is_iterable_v<decltype(vec)>);
-        
+
+        std::vector<bool> vecBools = {true, true, true};
+        static_assert(is_iterable_v<decltype(vecBools)>);
+
         std::list<int> list = {1, 2, 3};
         static_assert(is_iterable_v<decltype(list)>);
     }
@@ -60,10 +63,8 @@ TEST_CASE("ctf payload_size strings")
     //std::cout << barectf::payload_size(s1, 54.f, 64., s2) << "\n";
 }
 
-TEST_CASE("ctf payload_size static arrays")
+TEST_CASE("barectf::payload_size static arrays")
 {
-    // TODO: Ideally these should evaluate as constexpr and we can use static_assert instead
-
     SECTION("std::array")
     {
         const std::array floats = {1.f, 2.f};
@@ -86,6 +87,21 @@ TEST_CASE("ctf payload_size static arrays")
         
         const std::string strings[]  = {"a", "ab", "abc"};
         CHECK(barectf::payload_size(strings) == 9);
+    }
+}
 
+TEST_CASE("barectf::payload_size dynamic containers")
+{
+    // extra 4 bytes for storing size
+    SECTION("std::vector")
+    {
+        const std::vector<float> floats = {1.f, 2.f};
+        CHECK(barectf::payload_size(floats) == 12);
+
+        const std::vector<bool> bools = {true, false, true};
+        CHECK(barectf::payload_size(bools) == 7);
+        
+        const std::vector<std::string> strings = {"a", "ab", "abc"};
+        CHECK(barectf::payload_size(strings) == 13);
     }
 }

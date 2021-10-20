@@ -161,10 +161,16 @@ constexpr size_t arg_size(T&& arg)
     if constexpr (!is_static_array_v<remove_cvref_t<T>>)
         size += sizeof(uint32_t);
 
-    // TODO: could be constexpr if we had a separate function dealing with static arrays
-    for (const auto& e : arg)
-        size += arg_size(e);
-    
+    // special handling of std::vector<bool> which isn't a normal container
+    if constexpr (std::is_same_v<remove_cvref_t<T>, std::vector<bool>>)
+    {
+        size += sizeof(bool) * arg.size();
+    }
+    else
+    {
+        for (const auto& e : arg)
+            size += arg_size(e);
+    }
     return size;
 }
 
