@@ -15,8 +15,8 @@ LOGD("Some log message. {size}, {position}, {list}", 123, Vec3(0, -10, 5), std::
 Supports fmt compatible format strings using argument names as keys.
  
 Only the arguments in binary form are output by the logger. No string formatting takes place in the program.
-Log files are written in the Common Trace Format 1.8 which is an open standard for tracing used by LTTNG.
-Cross platform tools such as babeltrace2 and TraceCompass can be used to parse the log files and display them in a human readable format
+Log files are written in the [Common Trace Format](https://diamon.org/ctf) which is an open standard for tracing used by LTTNG.
+Cross platform tools such as [babeltrace](https://babeltrace.org) and [TraceCompass](https://www.eclipse.org/tracecompass) can be used to parse the log files and display them in a human readable format.
 
 Here's the output using babeltrace2:  
 ```sh
@@ -73,10 +73,12 @@ REFLECT(SomeType, sum)
 - [ ] pointers
 
 ## TODOs
+* CMake build scripts and CI on github
+* More tests
 * Control log level filtering at runtime
+* Finish support for function entry and exit events to allow for profiling TraceCompass
 * Support optional text based output via fmt library for convenience
 * Submodules for third party dependencies
-* More tests
 
 ## Future work
 * Asynchronous logging (MPSC ring buffer which is then written to disk on another thread)
