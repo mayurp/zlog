@@ -20,26 +20,22 @@ static_assert(barectf::payload_size(1u, true) == 5);
 
 // TODO move to separate test file
 
-void test()
+void test_type_traits()
 {
-    {
-        std::array arr = {1, 2, 3};
-        static_assert(is_iterable_v<decltype(arr)>);
-    }
-    
-    {
-        int arr[3] = {1, 2, 3};
-        static_assert(is_iterable_v<decltype((arr))>);
+    std::array sarr = {1, 2, 3};
+    static_assert(is_iterable_v<decltype(sarr)>);
 
-        std::vector<int> vec = {1, 2, 3};
-        static_assert(is_iterable_v<decltype(vec)>);
+    int arr[3] = {1, 2, 3};
+    static_assert(is_iterable_v<decltype((arr))>);
 
-        std::vector<bool> vecBools = {true, true, true};
-        static_assert(is_iterable_v<decltype(vecBools)>);
+    std::vector<int> vec = {1, 2, 3};
+    static_assert(is_iterable_v<decltype(vec)>);
 
-        std::list<int> list = {1, 2, 3};
-        static_assert(is_iterable_v<decltype(list)>);
-    }
+    std::vector<bool> vecBools = {true, true, true};
+    static_assert(is_iterable_v<decltype(vecBools)>);
+
+    std::list<int> list = {1, 2, 3};
+    static_assert(is_iterable_v<decltype(list)>);
 }
 
 TEST_CASE("ctf payload_size strings")

@@ -460,7 +460,7 @@ void __cyg_profile_func_enter(void *this_fn, void *call_site)
 {
     // TODO: don't hardcode event ids
     if (barectf::has_default_context())
-        barectf::log_event(1, (uint64_t)this_fn, (uint64_t)call_site);
+        barectf::log_event(1, (uint64_t) this_fn, (uint64_t) call_site);
 }
 
 NO_INSTRUMENT
