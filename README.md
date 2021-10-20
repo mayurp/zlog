@@ -18,7 +18,7 @@ Only the arguments in binary form are output by the logger. No string formatting
 Log files are written in the Common Trace Format 1.8 which is an open standard for tracing used by LTTNG.
 Cross platform tools such as babeltrace2 and TraceCompass can be used to parse the log files and display them in a human readable format
 
-For example this is how to 
+Here's the output using babeltrace2:  
 ```sh
 $ babeltrace2 trace_dir --fields loglevel
 
