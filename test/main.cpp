@@ -307,19 +307,6 @@ void test_barectf()
     std::cout << "log end\n";
 
     //thread.join();
-    
-   // std::array arry = {"1", "11"};
-
-    //std::cout << type_name2<decltype(arry)>()() << "\n";
-
-//    static_assert(test_size(arry) == 2);
-    
-    //std::cout << test_size(arry) << "---";
-    
-//    std::cout << sizeof(arry[0]) << "---";
-//    std::cout << sizeof(arry[1]) << "---";
-//    std::cout << sizeof("111") << "---";
-
 }
 
 
