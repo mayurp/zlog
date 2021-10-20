@@ -79,6 +79,7 @@ REFLECT(SomeType, sum)
 * Finish support for function entry and exit events to allow for profiling TraceCompass
 * Support optional text based output via fmt library for convenience
 * Submodules for third party dependencies
+* Performance benchmarks and comparison to similar libraries (nanolog, binlog)
 
 ## Future work
 * Asynchronous logging (MPSC ring buffer which is then written to disk on another thread)
