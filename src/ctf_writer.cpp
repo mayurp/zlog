@@ -29,6 +29,7 @@ Session::Session(const std::filesystem::path& _trace_dir)
     : trace_dir(_trace_dir)
 {
     const std::string metadata = barectf::generate_ctf_metadata();
+    std::filesystem::create_directories(trace_dir);
     std::ofstream fs(trace_dir / "metadata");
     if (fs.is_open())
         fs << metadata;

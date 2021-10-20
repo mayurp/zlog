@@ -4,9 +4,11 @@
 //  Created by Mayur Patel on 27/03/2021.
 //
 
+#include "log.hpp"
 #include "ctf_writer.hpp"
 
 #define CATCH_CONFIG_MAIN
+//#define CATCH_CONFIG_RUNNER
 #include <catch2/catch.hpp>
 
 #include <list>
@@ -19,7 +21,6 @@ static_assert(barectf::payload_size(1u, true) == 5);
 
 
 // TODO move to separate test file
-
 void test_type_traits()
 {
     std::array sarr = {1, 2, 3};
@@ -100,4 +101,24 @@ TEST_CASE("barectf::payload_size dynamic containers")
         const std::vector<std::string> strings = {"a", "ab", "abc"};
         CHECK(barectf::payload_size(strings) == 13);
     }
+}
+
+// Compile time checks
+struct NonCopyable
+{
+    NonCopyable(int _a) : a(_a) {}
+    NonCopyable(const NonCopyable& x) = delete; // : a(x.a) { std::cout << "copy construct\n";}
+    NonCopyable(NonCopyable&& x) = delete; // : a(x.a) { std::cout << "move construct\n";}
+    NonCopyable& operator=(const NonCopyable& x)  = delete; //  { a = x.a; std::cout << "copy assign\n"; return *this;}
+    NonCopyable& operator=(NonCopyable&& x )  = delete; //  { a = x.a; std::cout << "move assign\n"; return *this;}
+    
+    int a = 0;
+};
+REFLECT(NonCopyable, a)
+
+TEST_CASE("logging nocopy")
+{
+    NonCopyable n(1);
+    LOGD("test no copy lvalue: {value}", n);
+    LOGD("test no copy rvalue: {value}", NonCopyable(1));
 }

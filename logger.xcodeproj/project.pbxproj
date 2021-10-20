@@ -12,7 +12,7 @@
 		77C7596126EA9F1D0012C73A /* ctf_writer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 77C7596026EA9F1C0012C73A /* ctf_writer.cpp */; };
 		77CE34C82627ABF400B70B56 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 77CE34C72627ABF400B70B56 /* main.cpp */; };
 		77CE34DE2627ACAD00B70B56 /* reflection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 77CE34D02627ACAD00B70B56 /* reflection.cpp */; };
-		77CE34E02627ACAD00B70B56 /* tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 77CE34D72627ACAD00B70B56 /* tests.cpp */; };
+		77CE34E02627ACAD00B70B56 /* test_ctf_writer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 77CE34D72627ACAD00B70B56 /* test_ctf_writer.cpp */; };
 		77CE34E12627ACAD00B70B56 /* log.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 77CE34DC2627ACAD00B70B56 /* log.cpp */; };
 		77CE34F92627DFAE00B70B56 /* libfmt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 77CE34E52627ACDB00B70B56 /* libfmt.a */; };
 		77CE34FC262A651F00B70B56 /* test_format_parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 77CE34FB262A651F00B70B56 /* test_format_parser.cpp */; };
@@ -46,7 +46,7 @@
 		77CE34D22627ACAD00B70B56 /* fmt_helpers.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = fmt_helpers.hpp; sourceTree = "<group>"; };
 		77CE34D32627ACAD00B70B56 /* log.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = log.hpp; sourceTree = "<group>"; };
 		77CE34D42627ACAD00B70B56 /* map_macro.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = map_macro.hpp; sourceTree = "<group>"; };
-		77CE34D72627ACAD00B70B56 /* tests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tests.cpp; sourceTree = "<group>"; };
+		77CE34D72627ACAD00B70B56 /* test_ctf_writer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_ctf_writer.cpp; sourceTree = "<group>"; };
 		77CE34D92627ACAD00B70B56 /* type_name.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = type_name.hpp; sourceTree = "<group>"; };
 		77CE34DB2627ACAD00B70B56 /* reflection.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = reflection.hpp; sourceTree = "<group>"; };
 		77CE34DC2627ACAD00B70B56 /* log.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = log.cpp; sourceTree = "<group>"; };
@@ -90,7 +90,7 @@
 			isa = PBXGroup;
 			children = (
 				77CE34C72627ABF400B70B56 /* main.cpp */,
-				77CE34D72627ACAD00B70B56 /* tests.cpp */,
+				77CE34D72627ACAD00B70B56 /* test_ctf_writer.cpp */,
 				77CE34FB262A651F00B70B56 /* test_format_parser.cpp */,
 			);
 			path = test;
@@ -194,7 +194,7 @@
 				77CE34DE2627ACAD00B70B56 /* reflection.cpp in Sources */,
 				77C7596126EA9F1D0012C73A /* ctf_writer.cpp in Sources */,
 				77C7595126DAF6260012C73A /* barectf-platform-linux-fs.c in Sources */,
-				77CE34E02627ACAD00B70B56 /* tests.cpp in Sources */,
+				77CE34E02627ACAD00B70B56 /* test_ctf_writer.cpp in Sources */,
 				77CE34C82627ABF400B70B56 /* main.cpp in Sources */,
 				77CE34E12627ACAD00B70B56 /* log.cpp in Sources */,
 			);
