@@ -323,7 +323,7 @@ void test_barectf()
 }
 
 
-int main()
+int main2()
 {
 /*
     std::cout << "main start\n";

@@ -6,6 +6,7 @@
 //
 
 #include <type_traits>
+#include <iterator>
 
 #ifndef type_traits_hpp
 #define type_traits_hpp
@@ -22,6 +23,9 @@ struct is_std_array<std::array<T, N>> : std::true_type {};
 
 template<typename T>
 inline constexpr bool is_std_array_v = is_std_array<T>::value;
+
+template<typename T>
+inline constexpr bool is_static_array_v = is_std_array_v<T> || std::is_array_v<T>;
 
 template<typename>
 struct array_size;
@@ -75,9 +79,9 @@ template <typename T, typename = void>
 inline constexpr bool is_iterable_v = false;
  
 template <typename T>
-inline constexpr bool is_iterable_v<T,
-                                    std::void_t<decltype(std::declval<T>().begin(), std::declval<T>().end())>>
-                                    = true;
+inline constexpr bool is_iterable_v<T, std::void_t<decltype(std::begin(std::declval<T>())),
+                                                   decltype(std::end(std::declval<T>()))>>
+                                       = true;
 
 
 template <typename T, typename = void>
