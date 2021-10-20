@@ -21,5 +21,8 @@ DerivedData/
 
 template_fun.xcodeproj/project.xcworkspace/xcshareddata/
 
-#libs
-thirdparty/
+
+thirdparty/catch2
+thirdparty_local
+thirdparty_old
+
