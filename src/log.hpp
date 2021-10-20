@@ -61,8 +61,8 @@ struct LogMetaData
 inline int event_id_seq = 3;
 
 std::vector<LogMetaData>& get_registry();
+
 void add_to_registry(const LogMetaData& data);
-void add_to_vector(std::vector<std::string_view>& vec, const std::string_view& str);
 
 // transform type to one suitable for serialisation
 // e.g int -> int32_t
@@ -101,7 +101,7 @@ struct MetaDataNode
         // Add arg names and types for event definition
         (data.fieldTypes.emplace_back(reflection::make_reflection_type<Args>()), ...);
         for (const auto& argName : argNames)
-            add_to_vector(data.fieldNames, argName);
+            data.fieldNames.emplace_back(argName);
         
         add_to_registry(data);
     }

@@ -42,8 +42,7 @@ struct X
     
     int a = 0;
     bool b = true;
-    std::map<int, int
-    > map;
+    std::map<int, int> map;
 };
 REFLECT(X, a, b, map)
 
@@ -329,7 +328,6 @@ int main()
 /*
     std::cout << "main start\n";
     testLogRegistry();
-    testEtw();
     testReflection();
     testTypeRegistry();
     testFormat();

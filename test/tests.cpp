@@ -1,9 +1,7 @@
 //
 //  tests.cpp
 //
-//
 //  Created by Mayur Patel on 27/03/2021.
-//  Copyright © 2021 Mayur Patel. All rights reserved.
 //
 
 #include "ctf_writer.hpp"
