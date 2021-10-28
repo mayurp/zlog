@@ -39,7 +39,7 @@ void test_type_traits()
     static_assert(is_iterable_v<decltype(list)>);
 }
 
-TEST_CASE("ctf payload_size strings")
+TEST_CASE("ctf payload_size strings", "[ctf]")
 {
     const char* cstr = "abc";
     CHECK(barectf::payload_size(cstr) == 4);
@@ -60,7 +60,7 @@ TEST_CASE("ctf payload_size strings")
     //std::cout << barectf::payload_size(s1, 54.f, 64., s2) << "\n";
 }
 
-TEST_CASE("barectf::payload_size static arrays")
+TEST_CASE("barectf::payload_size static arrays", "[ctf]")
 {
     SECTION("std::array")
     {
@@ -87,7 +87,7 @@ TEST_CASE("barectf::payload_size static arrays")
     }
 }
 
-TEST_CASE("barectf::payload_size dynamic containers")
+TEST_CASE("barectf::payload_size dynamic containers", "[ctf]")
 {
     // extra 4 bytes for storing size
     SECTION("std::vector")
@@ -124,7 +124,7 @@ struct Aggregate
 REFLECT(Aggregate, n)
 
 
-TEST_CASE("logging nocopy")
+TEST_CASE("logging nocopy", "[log]")
 {
     NonCopyable n(1);
     LOGD("test no copy lvalue: {value}", n);
