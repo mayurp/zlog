@@ -19,8 +19,26 @@ DerivedData/
 !default.perspectivev3
 
 
-template_fun.xcodeproj/project.xcworkspace/xcshareddata/
+logger.xcodeproj/project.xcworkspace/xcshareddata/
 
+## CMake
+CMakeLists.txt.user
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Testing
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps
+
+## build output
+bin
+
+## application output
+trace
 
 thirdparty/catch2
 thirdparty_local
