@@ -13,12 +13,12 @@ add_executable(
 		test/test_ctf_writer.cpp
 		test/test_format_parser.cpp
 
+		src/barectf/barectf.c
+		src/barectf/barectf-platform-linux-fs.c
 		src/ctf_writer.cpp
 		src/log.cpp
 		src/reflection.cpp
 
-		src/barectf/barectf.c
-		src/barectf/barectf-platform-linux-fs.c
 )
 
 target_include_directories(
