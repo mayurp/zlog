@@ -13,6 +13,7 @@
 #include "reflection.hpp"
 #include "type_traits.hpp"
 
+#include <cstring>
 #include <filesystem>
 #include <string>
 #include <type_traits>

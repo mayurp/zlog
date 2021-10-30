@@ -9,9 +9,9 @@
 #include "barectf-platform-linux-fs.h"
 #include "log.hpp"
 
+#include <atomic>
 #include <exception>
 #include <fstream>
-#include <map>
 #include <sstream>
 #include <thread>
 

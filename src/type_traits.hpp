@@ -5,6 +5,7 @@
 //  Created by Mayur Patel on 11/09/2021.
 //
 
+#include <array>
 #include <type_traits>
 #include <iterator>
 
