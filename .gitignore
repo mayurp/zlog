@@ -36,11 +36,8 @@ _deps
 
 ## build output
 bin
+build
 
-## application output
-trace
-
-thirdparty/catch2
 thirdparty_local
 thirdparty_old
 
