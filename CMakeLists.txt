@@ -6,10 +6,10 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin) 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 add_executable(
-	tests 
+	tests
 		test/test_ctf_writer.cpp
 		test/test_format_parser.cpp
 
@@ -18,13 +18,12 @@ add_executable(
 		src/ctf_writer.cpp
 		src/log.cpp
 		src/reflection.cpp
-
 )
 
 target_include_directories(
-    tests 
-        PUBLIC 
-        src 
+    tests
+        PUBLIC
+        src
         src/barectf
         thirdparty
         thirdparty/magic_enum/include
