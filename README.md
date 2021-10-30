@@ -75,12 +75,10 @@ REFLECT(SomeType, sum)
 - [ ] pointers
 
 ## TODOs
-* CMake build scripts and CI on github
 * More tests
 * Control log level filtering at runtime
 * Finish support for function entry and exit events to allow for profiling TraceCompass
 * Support optional text based output via fmt library for convenience
-* Submodules for third party dependencies
 * Performance benchmarks and comparison to similar libraries (nanolog, binlog)
 
 ## Future work
