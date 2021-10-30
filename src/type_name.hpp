@@ -15,20 +15,42 @@ template<typename T>
 struct type_name
 {
 private:
+    
+    static constexpr std::string_view pretty_name(std::string_view name) noexcept
+    {
+        for (std::size_t i = name.size(); i > 0; --i)
+        {
+            char c = name[i - 1];
+            if (!((c >= '0' && c <= '9') ||
+                  (c >= 'a' && c <= 'z') ||
+                  (c >= 'A' && c <= 'Z') ||
+                  (c == '_')))
+            {
+                name.remove_prefix(i);
+                break;
+            }
+        }
+
+        if (name.size() > 0 && ((name.front() >= 'a' && name.front() <= 'z') ||
+                                (name.front() >= 'A' && name.front() <= 'Z') ||
+                                (name.front() == '_')))
+        {
+            return name;
+        }
+
+        return {}; // Invalid name.
+    }
+    
     static constexpr auto get() noexcept
     {
-        constexpr std::string_view full_name{ __PRETTY_FUNCTION__ };
-        constexpr std::string_view left_marker{ "[T = " };
-        constexpr std::string_view right_marker{ "]" };
-
-        constexpr auto left_marker_index = full_name.find(left_marker);
-        static_assert(left_marker_index != std::string_view::npos);
-        constexpr auto start_index = left_marker_index + left_marker.size();
-        constexpr auto end_index = full_name.find(right_marker, left_marker_index);
-        static_assert(end_index != std::string_view::npos);
-        constexpr auto length = end_index - start_index;
-
-        return full_name.substr(start_index, length);
+#if defined(__clang__) || defined(__GNUC__)
+        constexpr auto name = pretty_name({__PRETTY_FUNCTION__, sizeof(__PRETTY_FUNCTION__) - 2});
+#elif defined(_MSC_VER)
+        constexpr auto name = pretty_name({__FUNCSIG__, sizeof(__FUNCSIG__) - 17});
+#else
+#       error unsupported C++ compiler
+#endif
+        return name;
     }
 
 public:
