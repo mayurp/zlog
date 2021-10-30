@@ -68,10 +68,17 @@ set(
 # Show folders in IDE
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/test" FILES ${TEST_FILES})
 
-add_executable(test ${TEST_FILES})
+add_executable(unit_tests ${TEST_FILES})
 
 target_link_libraries(
-    test
+    unit_tests
         catch
         zlog
 )
+
+# Load and use the .cmake file provided by Catch so all the test cases
+# are made available to CTest.
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/catch2/cmake)
+include(Catch)
+include(CTest)
+catch_discover_tests(unit_tests)
