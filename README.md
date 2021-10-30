@@ -1,5 +1,7 @@
 # zlog
 
+![workflow](https://github.com/mayurp/zlog/actions/workflows/cmake.yml/badge.svg)
+
 A C++17 based structured binary logger.
 
 Log almost anything without the overhead of string formatting.
