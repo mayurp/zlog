@@ -77,8 +77,8 @@ REFLECT(SomeType, sum)
 ## TODOs
 * More tests
 * Control log level filtering at runtime
-* Finish support for function entry and exit events to allow for profiling TraceCompass
-* Support optional text based output via fmt library for convenience
+* Finish support for function entry and exit events to allow for profiling in TraceCompass
+* Support optional text based output via the fmt library for convenience
 * Performance benchmarks and comparison to similar libraries (nanolog, binlog)
 
 ## Future work
