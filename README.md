@@ -29,7 +29,7 @@ $ babeltrace2 trace_dir --fields loglevel
 
 ## How it works
 
-The format string is parsed at compiled time to extract argument names. Metadata about each LOG statement is then registered during static initialisation.
+The format string is parsed at compiled time to extract argument names. Metadata about each LOG statement is registered during static initialisation.
 This metadata is then written on startup as a CTF 1.8 TDSL file.
 
 Logging of custom types is supported via compile time reflection. Use the REFLECT macro in the same compilation unit as the LOG statement as below.
