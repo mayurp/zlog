@@ -11,7 +11,7 @@
 //#define CATCH_CONFIG_RUNNER
 #include <catch2/catch.hpp>
 
-#include <list>
+
 
 // Integral types
 static_assert(barectf::payload_size(1llu) == 8);
@@ -19,25 +19,6 @@ static_assert(barectf::payload_size(1llu, true) == 9);
 static_assert(barectf::payload_size(1u, true) == 5);
 static_assert(barectf::payload_size(1u, true) == 5);
 
-
-// TODO move to separate test file
-void test_type_traits()
-{
-    std::array sarr = {1, 2, 3};
-    static_assert(is_iterable_v<decltype(sarr)>);
-
-    int arr[3] = {1, 2, 3};
-    static_assert(is_iterable_v<decltype((arr))>);
-
-    std::vector<int> vec = {1, 2, 3};
-    static_assert(is_iterable_v<decltype(vec)>);
-
-    std::vector<bool> vecBools = {true, true, true};
-    static_assert(is_iterable_v<decltype(vecBools)>);
-
-    std::list<int> list = {1, 2, 3};
-    static_assert(is_iterable_v<decltype(list)>);
-}
 
 TEST_CASE("ctf payload_size strings", "[ctf]")
 {

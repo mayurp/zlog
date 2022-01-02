@@ -6,8 +6,10 @@
 //
 
 #include <array>
-#include <type_traits>
 #include <iterator>
+#include <type_traits>
+#include <string>
+
 
 #ifndef type_traits_hpp
 #define type_traits_hpp
@@ -44,37 +46,6 @@ inline constexpr bool is_string_v = std::disjunction_v<
                         std::is_same<std::string, std::decay_t<T>>,
                         std::is_same<std::string_view, std::decay_t<T>>
                         >;
-
-template<typename T, typename _ = void>
-struct is_container : std::false_type {};
-
-template<typename... Ts>
-struct is_container_helper {};
-
-template<typename T>
-struct is_container<
-        T,
-        std::conditional_t<
-            false,
-            is_container_helper<
-                typename T::value_type,
-                typename T::size_type,
-                typename T::allocator_type,
-                typename T::iterator,
-                typename T::const_iterator,
-                decltype(std::declval<T>().size()),
-                decltype(std::declval<T>().begin()),
-                decltype(std::declval<T>().end()),
-                decltype(std::declval<T>().cbegin()),
-                decltype(std::declval<T>().cend())
-                >,
-            void
-            >
-        > : public std::true_type {};
-
-
-template<typename T>
-inline constexpr bool is_container_v = is_container<T>::value;
 
 template <typename T, typename = void>
 inline constexpr bool is_iterable_v = false;

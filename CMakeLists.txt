@@ -64,6 +64,7 @@ set(
         test/test_ctf_writer.cpp
         test/test_format_parser.cpp
         test/test_type_name.cpp
+        test/test_type_traits.cpp
 )
 
 # Show folders in IDE
