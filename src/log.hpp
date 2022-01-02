@@ -143,11 +143,11 @@ do                                                              \
     {                                                           \
         constexpr LogMacroData operator()() const noexcept      \
         {                                                       \
-            return LogMacroData{format, function, __FILE__, __LINE__};    \
+            return LogMacroData{format, function, __FILE__, __LINE__};\
         }                                                       \
     };                                                          \
                                                                 \
-    log_func<level, MetaData>(__VA_ARGS__);                      \
+    log_func<level, MetaData>(__VA_ARGS__);                     \
 } while(false)                                                  \
 
 #define LOGC(format, ...) LOG(LogLevel::Critical, format, __VA_ARGS__)

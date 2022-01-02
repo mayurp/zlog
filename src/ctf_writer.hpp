@@ -156,7 +156,7 @@ template<typename T,
 NO_INSTRUMENT
 constexpr size_t arg_size(T&& arg)
 {
-    // First write size for dynamics array
+    // First write size for dynamic array
     // type of size must match what is used in generate_ctf_metadata();
     size_t size = 0;
     if constexpr (!is_static_array_v<remove_cvref_t<T>>)
@@ -276,7 +276,7 @@ template<typename T,
 NO_INSTRUMENT
 inline constexpr void serialize_arg(uint8_t*& buf, T&& arg)
 {
-    // First write size for dynamics array
+    // First write size for dynamic array
     // type of size must match what is used in generate_ctf_metadata();
     if constexpr (!is_static_array_v<remove_cvref_t<T>>)
         serialize_arg(buf, static_cast<uint32_t>(arg.size()));
@@ -359,7 +359,7 @@ void log_event(uint32_t event_id, Args&&... args)
         serialize_args(curr, std::forward<Args>(args)...);
         const size_t bytes_written = curr - start;
            
-        // Snaity check
+        // Sanity check
         //if (before != ctx->at)
         //    throw std::logic_error("ctx->at should not have changed");
 
