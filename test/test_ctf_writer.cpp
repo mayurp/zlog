@@ -20,11 +20,13 @@ static_assert(barectf::payload_size(1u, true) == 5);
 
 TEST_CASE("ctf payload_size strings", "[ctf]")
 {
+    // ctf strings are null terminated
+
     const char* cstr = "abc";
     CHECK(barectf::payload_size(cstr) == 4);
 
     const char str_array[10] = "abc";
-    CHECK(barectf::payload_size(str_array) == 4); // based on null terminated size
+    CHECK(barectf::payload_size(str_array) == 4);
 
     const char str_array_u[] = "abc";
     CHECK(barectf::payload_size(str_array_u) == 4);
@@ -51,6 +53,9 @@ TEST_CASE("barectf::payload_size static arrays", "[ctf]")
         
         const std::array strings = {"a", "ab", "abc"};
         CHECK(barectf::payload_size(strings) == 9);
+
+        const std::array string_views = {"a", "ab", "abc"};
+        CHECK(barectf::payload_size(string_views) == 9);
     }
 
     SECTION("array[]")
@@ -63,6 +68,9 @@ TEST_CASE("barectf::payload_size static arrays", "[ctf]")
         
         const std::string strings[]  = {"a", "ab", "abc"};
         CHECK(barectf::payload_size(strings) == 9);
+
+        const std::string_view string_views[]  = {"a", "ab", "abc"};
+        CHECK(barectf::payload_size(string_views) == 9);
     }
 }
 
@@ -79,5 +87,18 @@ TEST_CASE("barectf::payload_size dynamic containers", "[ctf]")
         
         const std::vector<std::string> strings = {"a", "ab", "abc"};
         CHECK(barectf::payload_size(strings) == 13);
+
+        const std::vector<std::string_view> string_views = {"a", "ab", "abc"};
+        CHECK(barectf::payload_size(string_views) == 13);
+    }
+    
+    SECTION("std::map")
+    {
+        std::map<int32_t, bool> ints_bools = { {1, true}, {2, false} };
+        CHECK(barectf::payload_size(ints_bools) == 14);
+
+        std::map<std::string, std::string> strings_bools = { {"a", "bc"}, {"d", ""}, {"efg", "hij"} };
+        CHECK(barectf::payload_size(strings_bools) == 20);
     }
 }
+
